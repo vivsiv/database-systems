@@ -14,12 +14,12 @@
 		$expr = $_GET["expr"];
 		// echo "expr: " . $expr;
 		// echo "<br/>";
-		$validExprRegex = '/([0-9](\+|\-|\*|\/))+[0-9]/';
+		$validExprRegex = '/(\-)?(([0-9]+(.)?[0-9]+)(\+|\-|\*|\/))+([0-9]+(.)?[0-9]+)/';
 		preg_match($validExprRegex, $expr, $exprMatches);
 		// echo "exprMatches[0]: " . $exprMatches[0];
 		// echo "<br/>";
 		$validExpr = $exprMatches[0];
-		if ($validExpr){
+		if ($validExpr && strlen($validExpr) == strlen($expr)){
 			$divideByZeroRegex = "/(\/0)/";
 			preg_match($divideByZeroRegex, $validExpr, $divideMatches);
 			$divideByZeroError = $divideMatches[0];
