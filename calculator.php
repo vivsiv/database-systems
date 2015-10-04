@@ -14,7 +14,7 @@
 		$expr = $_GET["expr"];
 		// echo "expr: " . $expr;
 		// echo "<br/>";
-		$validExprRegex = '/(\-)?(([0-9]+(.)?[0-9]+)(\+|\-|\*|\/))+([0-9]+(.)?[0-9]+)/';
+		$validExprRegex = '/(([-]?\d+([.]?\d+)?)[\+\-\*\/])*([-]?\d+([.]?\d+)?)/';
 		preg_match($validExprRegex, $expr, $exprMatches);
 		// echo "exprMatches[0]: " . $exprMatches[0];
 		// echo "<br/>";
