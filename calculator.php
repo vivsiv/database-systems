@@ -34,8 +34,6 @@
 		else {
 			echo "Invalid Expression!";
 		}
-
-		
 	}
 	else {
 		echo "Nothing to calculate";
