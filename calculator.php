@@ -1,6 +1,8 @@
 <h1>Calculator</h1>
-<p>by Vivek Sivakumar</p>
-<br/>
+<p>(Ver 1.0) by Vivek Sivakumar</p>
+<hr/>
+
+<p>Type and expression into the box (e.g. 1+5-6/3.2)</p>
 
 <p>
 <form action="calculator.php" method="GET">
@@ -40,3 +42,8 @@
 	}
 
 ?>
+<hr/>
+
+<p>Supports +, -, *, and / Operators</p>
+<p>Follows standard operator precedence</p>
+<p>Does not support parenthesees</p>
