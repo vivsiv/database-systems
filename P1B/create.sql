@@ -39,13 +39,13 @@ CREATE TABLE MovieActor (
 	role VARCHAR(50)
 );
 
--- CREATE TABLE Review (
--- 	name VARCHAR(20),
--- 	time TIMESTAMP,
--- 	mid INT,
--- 	rating INT,
--- 	comment VARCHAR(500)
--- );
+CREATE TABLE Review (
+	name VARCHAR(20),
+	time TIMESTAMP,
+	mid INT,
+	rating INT,
+	comment VARCHAR(500)
+);
 
 -- CREATE TABLE MaxPersonID (
 -- 	id INT
