@@ -47,13 +47,13 @@ CREATE TABLE Review (
 	comment VARCHAR(500)
 );
 
--- CREATE TABLE MaxPersonID (
--- 	id INT
--- );
+CREATE TABLE MaxPersonID (
+	id INT
+);
 
--- CREATE TABLE MaxMovieID (
--- 	id INT
--- );
+CREATE TABLE MaxMovieID (
+	id INT
+);
 
 
 
