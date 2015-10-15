@@ -33,11 +33,11 @@ CREATE TABLE MovieDirector (
 	did INT
 );
 
--- CREATE TABLE MovieActor (
--- 	mid INT,
--- 	aid INT,
--- 	role VARCHAR(50)
--- );
+CREATE TABLE MovieActor (
+	mid INT,
+	aid INT,
+	role VARCHAR(50)
+);
 
 -- CREATE TABLE Review (
 -- 	name VARCHAR(20),
