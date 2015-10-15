@@ -25,7 +25,36 @@
 <?php
 	if($_GET["query"]){
 		$query = $_GET["query"];
-		echo "Queried: " . $query;
-		//echo "Result: ";
+		print "<b>Queried</b>: '" . $query . "'";
+		print "<br/><br/>";
+		$db_connection = mysql_connect("localhost", "cs143", "");
+		if (!$db_connection){
+			$error_msg = mysql_error($db_connection);
+			print "Connection Failed: $error_msg <br/>";
+			exit(1);
+		}
+		$db_selected = mysql_select_db("TEST", $db_connection);
+		if (!$db_selected){
+			print "Database doesn't exist! <br/>";
+			exit(1);
+		}
+		$sanitized_query = mysql_real_escape_string($query);
+		$result = mysql_query($sanitized_query, $db_connection);
+		if (!$result){
+			$error_msg = mysql_error($db_connection);
+			print "<b>Query Error:</b> $error_msg <br/>";
+			exit(1);
+		}
+		mysql_close($db_connection);
+
+		print "<table border='3'>";
+		while ($row = mysql_fetch_row($result)){
+			print "<tr>";
+				foreach ($row as $val){
+					print "<td border='1'>".$val."</td>";
+				}
+			print "</tr>";
+		}
+		print "</table>";
 	}
 ?>
