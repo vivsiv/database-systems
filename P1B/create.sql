@@ -13,31 +13,31 @@ CREATE TABLE Actor (
 	sex VARCHAR(6),
 	dob DATE,
 	dod DATE
-)
+);
 
--- CREATE TABLE Director (
--- 	id INT,
--- 	last VARCHAR(20),
--- 	first VARCHAR(20),
--- 	dob DATE,
--- 	dod DATE
--- )
+CREATE TABLE Director (
+	id INT,
+	last VARCHAR(20),
+	first VARCHAR(20),
+	dob DATE,
+	dod DATE
+);
 
 -- CREATE TABLE MovieGenre (
 -- 	mid INT,
 -- 	genre VARCHAR(20)
--- )
+-- );
 
 -- CREATE TABLE MovieDirector (
 -- 	mid INT,
 -- 	did INT
--- )
+-- );
 
 -- CREATE TABLE MovieActor (
 -- 	mid INT,
 -- 	aid INT,
 -- 	role VARCHAR(50)
--- )
+-- );
 
 -- CREATE TABLE Review (
 -- 	name VARCHAR(20),
@@ -45,15 +45,15 @@ CREATE TABLE Actor (
 -- 	mid INT,
 -- 	rating INT,
 -- 	comment VARCHAR(500)
--- )
+-- );
 
 -- CREATE TABLE MaxPersonID (
 -- 	id INT
--- )
+-- );
 
 -- CREATE TABLE MaxMovieID (
 -- 	id INT
--- )
+-- );
 
 
 
