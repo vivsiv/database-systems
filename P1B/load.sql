@@ -9,8 +9,8 @@ LOAD DATA LOCAL INFILE "~/data/actor3.del" INTO TABLE Actor FIELDS TERMINATED BY
 -- Director Data
 LOAD DATA LOCAL INFILE "~/data/director.del" INTO TABLE Director FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"';
 
--- -- Movie Genre Data
--- LOAD DATA LOCAL INFILE "~/data/moviegenre.del" INTO TABLE MovieGenre FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"';
+-- Movie Genre Data
+LOAD DATA LOCAL INFILE "~/data/moviegenre.del" INTO TABLE MovieGenre FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"';
 
 -- -- Movie Director Data
 -- LOAD DATA LOCAL INFILE "~/data/moviedirector.del" INTO TABLE MovieDirector FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"';

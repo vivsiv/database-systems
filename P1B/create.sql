@@ -23,10 +23,10 @@ CREATE TABLE Director (
 	dod DATE
 );
 
--- CREATE TABLE MovieGenre (
--- 	mid INT,
--- 	genre VARCHAR(20)
--- );
+CREATE TABLE MovieGenre (
+	mid INT,
+	genre VARCHAR(20)
+);
 
 -- CREATE TABLE MovieDirector (
 -- 	mid INT,
