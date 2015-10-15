@@ -28,10 +28,10 @@ CREATE TABLE MovieGenre (
 	genre VARCHAR(20)
 );
 
--- CREATE TABLE MovieDirector (
--- 	mid INT,
--- 	did INT
--- );
+CREATE TABLE MovieDirector (
+	mid INT,
+	did INT
+);
 
 -- CREATE TABLE MovieActor (
 -- 	mid INT,
