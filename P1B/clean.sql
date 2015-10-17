@@ -1,9 +1,9 @@
-DROP TABLE Movie;
-DROP TABLE Actor;
-DROP TABLE Director;
-DROP TABLE MovieGenre;
-DROP TABLE MovieDirector;
-DROP TABLE MovieActor;
-DROP TABLE Review;
-DROP TABLE MaxPersonID;
 DROP TABLE MaxMovieID;
+DROP TABLE MaxPersonID;
+DROP TABLE Review;
+DROP TABLE MovieActor;
+DROP TABLE MovieDirector;
+DROP TABLE MovieGenre;
+DROP TABLE Director;
+DROP TABLE Actor;
+DROP TABLE Movie;

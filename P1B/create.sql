@@ -1,42 +1,51 @@
 CREATE TABLE Movie (
 	id INT,
-	title VARCHAR(100),
+	title VARCHAR(100) NOT NULL,
 	year INT,
 	rating VARCHAR(10),
-	company VARCHAR(50)
+	company VARCHAR(50),
+	PRIMARY KEY (id)
 );
 
 CREATE TABLE Actor (
 	id INT,
-	last VARCHAR(20),
-	first VARCHAR(20),
+	last VARCHAR(20) NOT NULL,
+	first VARCHAR(20) NOT NULL,
 	sex VARCHAR(6),
-	dob DATE,
-	dod DATE
+	dob DATE NOT NULL,
+	dod DATE,
+	PRIMARY KEY (id)
 );
 
 CREATE TABLE Director (
 	id INT,
-	last VARCHAR(20),
-	first VARCHAR(20),
-	dob DATE,
-	dod DATE
+	last VARCHAR(20) NOT NULL,
+	first VARCHAR(20) NOT NULL,
+	dob DATE NOT NULL,
+	dod DATE,
+	PRIMARY KEY (id)
 );
 
 CREATE TABLE MovieGenre (
 	mid INT,
-	genre VARCHAR(20)
+	genre VARCHAR(20),
+	FOREIGN KEY (mid) REFERENCES Movie(id) ON DELETE CASCADE
 );
 
 CREATE TABLE MovieDirector (
 	mid INT,
-	did INT
+	did INT,
+	FOREIGN KEY (mid) REFERENCES Movie(id) ON DELETE CASCADE,
+	FOREIGN KEY (did) REFERENCES Director(id) ON DELETE CASCADE
 );
 
 CREATE TABLE MovieActor (
 	mid INT,
 	aid INT,
-	role VARCHAR(50)
+	role VARCHAR(50),
+	FOREIGN KEY (mid) REFERENCES Movie(id) ON DELETE CASCADE,
+	FOREIGN KEY (aid) REFERENCES Actor(id) ON DELETE CASCADE
+
 );
 
 CREATE TABLE Review (
@@ -44,7 +53,8 @@ CREATE TABLE Review (
 	time TIMESTAMP,
 	mid INT,
 	rating INT,
-	comment VARCHAR(500)
+	comment VARCHAR(500),
+	FOREIGN KEY (mid) REFERENCES Movie(id) ON DELETE CASCADE
 );
 
 CREATE TABLE MaxPersonID (
