@@ -1,5 +1,5 @@
 -- Names of all actors in "Die Another Day"
-SELECT first, last
+SELECT CONCAT(first, " ", last) AS "Actors in Die Another Day"
 FROM Actor
 WHERE Actor.id IN (
 	SELECT aid
@@ -8,7 +8,7 @@ WHERE Actor.id IN (
 );
 
 -- Count of all actors who acted in multiple movies
-SELECT COUNT(*)
+SELECT COUNT(*) AS "Number of Actors in multiple movies"
 FROM (
 	SELECT *
 	FROM MovieActor
@@ -17,7 +17,7 @@ FROM (
 ) AS M;
 
 -- Find All Meg Ryan RomComs
-SELECT DISTINCT title
+SELECT DISTINCT title AS "Meg Ryan RomComs"
 FROM Movie, MovieGenre
 WHERE Movie.id = MovieGenre.mid AND
 Movie.id IN (
