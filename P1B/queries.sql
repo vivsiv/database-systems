@@ -17,7 +17,7 @@ FROM (
 	HAVING COUNT(mid) >= 2
 ) AS M;
 
--- Find Tom Hanks Rom Coms
+-- Find Meg Ryan RomComs
 SELECT DISTINCT title
 FROM Movie, MovieGenre
 WHERE Movie.id = MovieGenre.mid AND
@@ -25,7 +25,8 @@ Movie.id IN (
 	SELECT mid
 	FROM Actor, MovieActor
 	WHERE Actor.id = MovieActor.aid AND
-	Actor.first="Tom" AND 
-	Actor.last="Hanks"
-) AND (MovieGenre.genre="Romance" OR MovieGenre.genre="Comedy");
+	Actor.first="Meg" AND 
+	Actor.last="Ryan"
+) AND 
+(MovieGenre.genre="Romance" OR MovieGenre.genre="Comedy");
 
