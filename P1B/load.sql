@@ -18,3 +18,9 @@ LOAD DATA LOCAL INFILE "~/data/moviedirector.del" INTO TABLE MovieDirector FIELD
 -- Movie Actor Data
 LOAD DATA LOCAL INFILE "~/data/movieactor1.del" INTO TABLE MovieActor FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"';
 LOAD DATA LOCAL INFILE "~/data/movieactor2.del" INTO TABLE MovieActor FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"';
+
+-- MaxPersonID Insert
+INSERT INTO MaxPersonID VALUES (69000);
+
+-- MaxMovieID Insert
+INSERT INTO MaxMovieID VALUES (4750);
