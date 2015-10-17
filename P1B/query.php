@@ -8,23 +8,40 @@
 	<li>Movie</li>
 	<li>Actor</li>
 	<li>Director</li>
+	<li>MovieGenre</li>
+	<li>MovieActor</li>
+	<li>MovieDirector</li>
 	<li>Review</li>
 </ul>
 <hr/>
 
 <p>Type an SQL Query into the box</p>
-<p>
+<!-- <p>
 <form action="query.php" method="GET">
 	<textarea name="query" rows="5" cols="50"></textarea>
 	<br/><br/>
 	<input type="submit" value="Search">
 </form>
 </p>
-<hr/>
+<hr/> -->
 
 <?php
+	function printForm($query=NULL){
+		print "<p>";
+		print "<form action='query.php' method='GET'>";
+		print "<textarea name='query' rows='5' cols='50'>";
+		if ($query) print $query;
+		print "</textarea>";
+		print "<br/><br/>";
+		print "<input type='submit' value='Search'>";
+		print "</form>";
+		print "</p>";
+		print "<hr/>";
+	}
+
 	if($_GET["query"]){
 		$query = $_GET["query"];
+		printForm($query);
 		print "<b>Queried</b>: '" . $query . "'";
 		print "<br/><br/>";
 		$db_connection = mysql_connect("localhost", "cs143", "");
@@ -62,5 +79,8 @@
 			print "</tr>";
 		}
 		print "</table>";
+	}
+	else {
+		printForm();
 	}
 ?>

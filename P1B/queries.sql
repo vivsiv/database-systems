@@ -7,7 +7,6 @@ WHERE Actor.id IN (
 	WHERE Movie.id = MovieActor.mid AND Movie.title = "Die Another Day"
 );
 
-
 -- Count of all actors who acted in multiple movies
 SELECT COUNT(*)
 FROM (
@@ -17,7 +16,7 @@ FROM (
 	HAVING COUNT(mid) >= 2
 ) AS M;
 
--- Find Meg Ryan RomComs
+-- Find All Meg Ryan RomComs
 SELECT DISTINCT title
 FROM Movie, MovieGenre
 WHERE Movie.id = MovieGenre.mid AND
