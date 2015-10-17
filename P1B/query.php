@@ -48,6 +48,12 @@
 		mysql_close($db_connection);
 
 		print "<table border='3'>";
+		$num_cols = mysql_num_fields($result);
+		print "<tr>";
+		for ($i = 0; $i < $num_cols; $i++){
+			print "<th border='2'>".mysql_field_name($result, $i)."</th>";
+		}
+		print "</tr>";
 		while ($row = mysql_fetch_row($result)){
 			print "<tr>";
 				foreach ($row as $val){
