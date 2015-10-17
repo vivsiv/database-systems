@@ -16,14 +16,6 @@
 <hr/>
 
 <p>Type an SQL Query into the box</p>
-<!-- <p>
-<form action="query.php" method="GET">
-	<textarea name="query" rows="5" cols="50"></textarea>
-	<br/><br/>
-	<input type="submit" value="Search">
-</form>
-</p>
-<hr/> -->
 
 <?php
 	function printForm($query=NULL){
