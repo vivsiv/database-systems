@@ -29,22 +29,22 @@ CREATE TABLE Director (
 CREATE TABLE MovieGenre (
 	mid INT,
 	genre VARCHAR(20),
-	FOREIGN KEY (mid) REFERENCES Movie(id) ON DELETE CASCADE
+	FOREIGN KEY (mid) REFERENCES Movie(id)
 );
 
 CREATE TABLE MovieDirector (
 	mid INT,
 	did INT,
-	FOREIGN KEY (mid) REFERENCES Movie(id) ON DELETE CASCADE,
-	FOREIGN KEY (did) REFERENCES Director(id) ON DELETE CASCADE
+	FOREIGN KEY (mid) REFERENCES Movie(id),
+	FOREIGN KEY (did) REFERENCES Director(id)
 );
 
 CREATE TABLE MovieActor (
 	mid INT,
 	aid INT,
 	role VARCHAR(50),
-	FOREIGN KEY (mid) REFERENCES Movie(id) ON DELETE CASCADE,
-	FOREIGN KEY (aid) REFERENCES Actor(id) ON DELETE CASCADE
+	FOREIGN KEY (mid) REFERENCES Movie(id),
+	FOREIGN KEY (aid) REFERENCES Actor(id)
 
 );
 
@@ -54,7 +54,7 @@ CREATE TABLE Review (
 	mid INT,
 	rating INT,
 	comment VARCHAR(500),
-	FOREIGN KEY (mid) REFERENCES Movie(id) ON DELETE CASCADE
+	FOREIGN KEY (mid) REFERENCES Movie(id)
 );
 
 CREATE TABLE MaxPersonID (
