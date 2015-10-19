@@ -47,7 +47,7 @@
 			print "Database doesn't exist! <br/>";
 			exit(1);
 		}
-		$sanitized_query = mysql_real_escape_string($query);
+		$sanitized_query = $query;
 		$result = mysql_query($sanitized_query, $db_connection);
 		if (!$result){
 			$error_msg = mysql_error($db_connection);
