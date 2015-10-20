@@ -2,7 +2,8 @@ INSERT INTO Movie VALUES (2,"Top Gun",1990,"PG-13","Paramount");
 -- Inserting a duplicate id into Movie Violates the Primary Key on id for Movie
 -- ERROR 1062 (23000): Duplicate entry '2' for key 'PRIMARY'
 
-DELETE FROM Movie where id=2;
+DELETE FROM Movie WHERE id=2;
+UPDATE Movie SET id=50000 WHERE id=2;
 -- Deleting/Updating a Movie's id Violates a MovieGenre's foreign key on mid if the movie is in the MovieGenre table
 -- ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`TEST`.`MovieGenre`, CONSTRAINT `MovieGenre_ibfk_1` FOREIGN KEY (`mid`) REFERENCES `Movie` (`id`))
 
@@ -22,6 +23,7 @@ INSERT INTO Actor VALUES (11,"Cruise","Tom","male",1975-05-25,NULL);
 -- ERROR 1062 (23000): Duplicate entry '11' for key 'PRIMARY'
 
 DELETE FROM Actor WHERE id=180;
+UPDATE Actor SET id=50000 WHERE id=180;
 -- Deleting/Updating an Actor's id violates a MovieActor's foreign key on aid if the actor is in the MovieActor Table
 -- ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`TEST`.`MovieActor`, CONSTRAINT `MovieActor_ibfk_2` FOREIGN KEY (`aid`) REFERENCES `Actor` (`id`))
 
@@ -30,6 +32,7 @@ INSERT INTO Director VALUES (16,"Whedon","Joss",1975-05-25,NULL);
 -- ERROR 1062 (23000): Duplicate entry '16' for key 'PRIMARY'
 
 DELETE FROM Director WHERE id=112;
+UPDATE Director SET id=50000 WHERE id=112;
 -- Deleting/Updating a Director's id violates a MovieDirector's foreign key on did if the director is in the MovieDirector Table
 -- ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`TEST`.`MovieDirector`, CONSTRAINT `MovieDirector_ibfk_2` FOREIGN KEY (`did`) REFERENCES `Director` (`id`))
 
