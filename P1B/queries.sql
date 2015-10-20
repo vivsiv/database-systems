@@ -31,6 +31,5 @@ Movie.id IN (
 	WHERE Actor.id = MovieActor.aid AND
 	Actor.first="Meg" AND 
 	Actor.last="Ryan"
-) AND 
-(MovieGenre.genre="Romance" OR MovieGenre.genre="Comedy");
+) AND (MovieGenre.genre="Romance" OR MovieGenre.genre="Comedy");
 
