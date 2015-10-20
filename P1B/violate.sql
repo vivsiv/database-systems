@@ -32,3 +32,12 @@ INSERT INTO Director VALUES (16,"Whedon","Joss",1975-05-25,NULL);
 DELETE FROM Director WHERE id=112;
 -- Deleting/Updating a Director's id violates a MovieDirector's foreign key on did if the director is in the MovieDirector Table
 -- ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`TEST`.`MovieDirector`, CONSTRAINT `MovieDirector_ibfk_2` FOREIGN KEY (`did`) REFERENCES `Director` (`id`))
+
+INSERT INTO Movie VALUES (5000,"Movie From The Future", 3000, "PG-13", "Alien Movies");
+-- Inserting a Movie made after 2015 violates the check constraint on year.
+
+INSERT INTO Review VALUES ("Way too Excited", 2015-10-19,1,5000,"WOOOOOO");
+-- Inserting a review with a rating higher than 5 violates the review check constraint
+
+INSERT INTO Actor VALUES (5000,"Exist","Doesn't",2075-10-30);
+-- Inserting an actor born after 2015 violates the Actor check constraint
