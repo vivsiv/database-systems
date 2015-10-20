@@ -4,7 +4,8 @@ CREATE TABLE Movie (
 	year INT,
 	rating VARCHAR(10),
 	company VARCHAR(50),
-	PRIMARY KEY (id)
+	PRIMARY KEY (id),
+	CHECK (year > 0 AND year <= 2015)
 );
 
 CREATE TABLE Actor (
@@ -14,7 +15,8 @@ CREATE TABLE Actor (
 	sex VARCHAR(6),
 	dob DATE NOT NULL,
 	dod DATE,
-	PRIMARY KEY (id)
+	PRIMARY KEY (id),
+	CHECK (dob <= 2015)
 );
 
 CREATE TABLE Director (
@@ -23,7 +25,8 @@ CREATE TABLE Director (
 	first VARCHAR(20) NOT NULL,
 	dob DATE NOT NULL,
 	dod DATE,
-	PRIMARY KEY (id)
+	PRIMARY KEY (id),
+	CHECK (dob <= 2015)
 );
 
 CREATE TABLE MovieGenre (
@@ -54,7 +57,8 @@ CREATE TABLE Review (
 	mid INT,
 	rating INT,
 	comment VARCHAR(500),
-	FOREIGN KEY (mid) REFERENCES Movie(id)
+	FOREIGN KEY (mid) REFERENCES Movie(id),
+	CHECK (rating >= 0 AND rating <= 5)
 );
 
 CREATE TABLE MaxPersonID (
