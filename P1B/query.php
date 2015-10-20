@@ -42,7 +42,7 @@
 			print "Connection Failed: $error_msg <br/>";
 			exit(1);
 		}
-		$db_selected = mysql_select_db("TEST", $db_connection);
+		$db_selected = mysql_select_db("CS143", $db_connection);
 		if (!$db_selected){
 			print "Database doesn't exist! <br/>";
 			exit(1);
