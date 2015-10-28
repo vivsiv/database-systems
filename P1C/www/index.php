@@ -48,9 +48,29 @@
 			<h4>Company</h4>
 			<input type="text" name="company"/>
 			<br/><br/>
-			<input id='submit' type='submit' value='Create'/>
+			<input id='submit' type='submit' value='Create Movie'/>
 		</form>
 		<hr/>
+
+		<h2>Add Actor or Director to Movie</h2>
+		<form id="create_movie_person_form" action='create_movie_person.php' method='GET'>
+			<input name="create_movie_person" type="hidden" value="true"/>
+			<select id="create_movie_person_select" name='create_movie_person_select'>
+				<option value="actor">Actor</option>
+				<option value="director">Director</option>
+			</select>
+			<h4>Person Name (First and Last)</h4>
+			<input type="text" name="person_name"/>
+			<h4>Movie Title</h4>
+			<input type="text" name="movie_title"/>
+			<h4>Role (For Actors)</h4>
+			<input type="text" name="role"/>
+			<br/><br/>
+			<input id='submit' type='submit' value='Create Movie Person'/>
+		</form>
+		<hr/>
+
+
 	<?php
 		include 'search.php'; 
 		include 'create.php';
