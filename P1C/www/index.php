@@ -15,7 +15,7 @@
 		<hr/>
 
 		<h2>Create Actor/Director</h2>
-		<form id="create_person_form" action='create.php' method='GET'>
+		<form id="create_person_form" action='create_person.php' method='GET'>
 			<select id="create_select" name='create_select'>
 				<option value="actor">Actor</option>
 				<option value="director">Director</option>
@@ -37,7 +37,7 @@
 		<hr/>
 
 		<h2>Create Movie</h2>
-		<form id="create_movie_form" action='create.php' method='GET'>
+		<form id="create_movie_form" action='create_movie.php' method='GET'>
 			<input name="create_movie" type="hidden" value="true"/>
 			<h4>Title</h4>
 			<input type="text" name="title"/>
