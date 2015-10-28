@@ -1,7 +1,7 @@
 <?php
 	include 'db_functions.php';
-	$db_connection = create_connection("localhost", "cs143", "");
 	if($_GET["create_movie"]) {
+		$db_connection = create_connection("localhost", "cs143", "");
 		$max_movie_query = "select id from MaxMovieID order by id desc limit 1";
 		$max_movie_result = run_query($max_movie_query, $db_connection);
 		$old_max_movie_id = intval(mysql_fetch_array($max_movie_result, MYSQL_ASSOC)["id"]);
@@ -19,6 +19,7 @@
 		$max_movie_update_query = sprintf("update MaxMovieID set id=%d where id=%d", $id, $old_max_movie_id);
 		print $max_movie_update_query . "<br/>";
 		run_query($max_movie_update_query, $db_connection);
+		close_connection($db_connection);
 	}
-	close_connection($db_connection);
+	
 ?>
