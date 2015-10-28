@@ -26,6 +26,11 @@
 
 	function sanitize_string($string, $db_connection){
 		$sanitized = mysql_real_escape_string($string, $db_connection);
+		if (!$sanitized){
+			$error_msg = mysql_error($db_connection);
+			print "<b>Error:</b> $error_msg <br/>";
+			exit(1);
+		}
 		return $sanitized;
 	}
 
