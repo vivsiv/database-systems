@@ -20,7 +20,7 @@
 				<option value="actor">Actor</option>
 				<option value="director">Director</option>
 			</select>
-			<input name="create_person" type="hidden">true</input>
+			<input name="create_person" type="hidden" value="true"/>
 			<h4>First Name</h4>
 			<input type="text" name="first"/>
 			<h4>Last Name</h4>
