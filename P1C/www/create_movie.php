@@ -21,5 +21,4 @@
 		run_query($max_movie_update_query, $db_connection);
 		close_connection($db_connection);
 	}
-	
 ?>
