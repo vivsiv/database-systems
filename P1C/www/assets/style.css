@@ -1,0 +1,22 @@
+.title {
+	text-align: center;
+}
+
+#search_select {
+	width:25%;
+	vertical-align: middle;
+	float:left;
+	margin-right:10px;
+}
+
+#search {
+	width:60%;
+	height:50px;
+	border: 2px solid black;
+	font-size: 13pt;
+}
+
+#submit {
+	width: 35%;
+	height: 60px;
+}
