@@ -16,7 +16,7 @@
 
 		<h2>Create Actor/Director</h2>
 		<form id="create_person_form" action='create_person.php' method='GET'>
-			<select id="create_select" name='create_select'>
+			<select id="create_person_select" name='create_person_select'>
 				<option value="actor">Actor</option>
 				<option value="director">Director</option>
 			</select>
@@ -32,7 +32,7 @@
 			<h4>DOD</h4>
 			<input type="text" name="dod"/>
 			<br/><br/>
-			<input id='submit' type='submit' value='Create'/>
+			<input id='submit' type='submit' value='Create Person'/>
 		</form>
 		<hr/>
 

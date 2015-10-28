@@ -17,7 +17,7 @@
 				$dod = intval(sanitize_string($_GET["dod"], $db_connection));
 			}
 
-			$person_type = sanitize_string($_GET["create_select"], $db_connection);
+			$person_type = sanitize_string($_GET["create_person_select"], $db_connection);
 			print $person_type . "<br/>";
 			if ($person_type == "actor"){
 				$actor_base_query = "insert into Actor values (%d,'%s','%s','%s','%s','%s')";
