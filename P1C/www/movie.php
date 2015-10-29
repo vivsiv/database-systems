@@ -65,10 +65,6 @@
 			print "</ul>";
 			print "<hr/>";
 		}
-
-
 		close_connection($db_connection);
-
 	}
-
 ?>
