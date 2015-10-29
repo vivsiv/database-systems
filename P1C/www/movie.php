@@ -65,6 +65,22 @@
 			print "</ul>";
 			print "<hr/>";
 		}
+
+		$review_base_query = "select * from Review where mid=%d";
+		$review_query = sprintf($review_base_query, $movie_id);
+		print $review_query . "<br/>";
+		$reviews = run_query($review_query, $db_connection);
+
+		if (mysql_num_rows($reviews) > 0){
+			print "<p>Reviews...</p>";
+			while ($review_row = mysql_fetch_array($reviews, MYSQL_ASSOC)){
+				print "<ul>";
+				printf("<li>%d Stars, %s, %s</li>", $review_row["rating"], $review_row["name"], $review_row["time"]);
+				printf("<li>%s</li>", $review_row["comment"]);
+				print "</ul>";
+			}
+		}
+		print "<hr/>";
 		close_connection($db_connection);
 	}
 ?>
