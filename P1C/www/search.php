@@ -29,14 +29,16 @@
 		print "<br/>";
 		print "<ul>";
 		while ($movie_row = mysql_fetch_array($movies, MYSQL_ASSOC)){
-			printf("<li>%s</li>", $movie_row["title"]);
+			$movie_link = sprintf("movie.php?movie_id=%d", $movie_row['id']);
+			printf("<li><a href='%s'>%s</a></li>", $movie_link, $movie_row["title"]);
 		}
 		print "</ul>";
 		print "<br/><br/>";
 		print "<p>Actor Results (" . mysql_num_rows($actors) . ")</p>";
 		print "<ul>";
 		while ($actor_row = mysql_fetch_array($actors, MYSQL_ASSOC)){
-			printf("<li>%s %s</li>", $actor_row["first"], $actor_row["last"]);
+			$actor_link = sprintf("actor.php?actor_id=%d", $actor_row['id']);
+			printf("<li><a href='%s'>%s %s</a></li>", $actor_link, $actor_row["first"], $actor_row["last"]);
 		}
 		print "</ul>";
 		print "<hr/>";
