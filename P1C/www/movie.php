@@ -71,14 +71,20 @@
 		print $review_query . "<br/>";
 		$reviews = run_query($review_query, $db_connection);
 
+		print "<p>Reviews...</p>";
+		$url_safe_title = str_replace(" ", "+", $movie_attr["title"]);
+			$review_link = sprintf("review_form.php?movie_id=%d&movie_title=%s", $movie_id, $url_safe_title);
+			print "<p><a href=$review_link>Create a review for this Movie</a></p>";
 		if (mysql_num_rows($reviews) > 0){
-			print "<p>Reviews...</p>";
 			while ($review_row = mysql_fetch_array($reviews, MYSQL_ASSOC)){
 				print "<ul>";
 				printf("<li>%d Stars, %s, %s</li>", $review_row["rating"], $review_row["name"], $review_row["time"]);
 				printf("<li>%s</li>", $review_row["comment"]);
 				print "</ul>";
 			}
+		}
+		else {
+			print "<p>Be the first to write a review!</p>";
 		}
 		print "<hr/>";
 		close_connection($db_connection);
