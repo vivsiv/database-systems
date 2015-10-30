@@ -11,8 +11,17 @@
 		$movie = run_query($movie_query, $db_connection);
 
 		$movie_attr = mysql_fetch_array($movie, MYSQL_ASSOC);
+
+		$movie_genre_base_query = "select genre from MovieGenre where mid=%d";
+		$movie_genre_query = sprintf($movie_genre_base_query, $movie_id);
+		$movie_genres = run_query($movie_genre_query, $db_connection);
+		$movie_genre_string = "";
+		while ($movie_genre_row = mysql_fetch_array($movie_genres, MYSQL_ASSOC)){
+			$movie_genre_string .= ($movie_genre_row["genre"] . " ");
+		}
+
 		printf("<h2 class='page_header'>%s (%s)</h2>", $movie_attr["title"], $movie_attr["year"]);
-		printf("<h4 class='page_centered'>%s %s</h4>", $movie_attr["rating"], $movie_attr["company"]);
+		printf("<h4 class='page_centered'>%s | %s | %s</h4>", $movie_attr["rating"], $movie_attr["company"], $movie_genre_string);
 
 		$movie_actor_base_query = "select aid,role from MovieActor where mid=%d";
 		$movie_actor_query = sprintf($movie_actor_base_query, $movie_id);
