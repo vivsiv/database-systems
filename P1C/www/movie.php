@@ -82,7 +82,8 @@
 		print "<h2>Reviews <a href=$review_link>(add)</a></h2>";
 		if (mysql_num_rows($reviews) > 0){
 			while ($review_row = mysql_fetch_array($reviews, MYSQL_ASSOC)){
-				printf("<p><b>%s</b> %d/5 stars (%s)</p>", $review_row["name"], $review_row["rating"], $review_row['time']);
+				$review_day = explode(" ", $review_row["time"])[0];
+				printf("<p><b>%s</b> %d/5 stars (%s)</p>", $review_row["name"], $review_row["rating"], $review_day);
 				print "<ul>";
 				printf("<li>%s</li>", $review_row["comment"]);
 				print "</ul>";
