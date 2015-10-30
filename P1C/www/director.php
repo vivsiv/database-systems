@@ -13,7 +13,7 @@
 		$director_attr = mysql_fetch_array($director, MYSQL_ASSOC);
 		$dob_year = explode("-", $director_attr["dob"])[0];
 		$dod_year = explode("-", $director_attr["dob"])[0];
-		printf("<h2 class='page_header'>%s %s (%s - )</h2>", $director_attr["first"], $director_attr["last"], $dob_year, $dod_year);
+		printf("<h2 class='page_header'>%s %s (%s - ) (Director)</h2>", $director_attr["first"], $director_attr["last"], $dob_year, $dod_year);
 		printf("<h4 class='page_centered'>%s %s</h4>", $director_attr["rating"], $director_attr["company"]);
 
 		$movie_director_base_query = "select mid from MovieDirector where did=%d";

@@ -13,7 +13,7 @@
 		$actor_attr = mysql_fetch_array($actor, MYSQL_ASSOC);
 		$dob_year = explode("-", $actor_attr["dob"])[0];
 		$dod_year = explode("-", $actor_attr["dob"])[0];
-		printf("<h2 class='page_header'>%s %s (%s - )</h2>", $actor_attr["first"], $actor_attr["last"], $dob_year, $dod_year);
+		printf("<h2 class='page_header'>%s %s (%s - ) (Actor)</h2>", $actor_attr["first"], $actor_attr["last"], $dob_year, $dod_year);
 		printf("<h4 class='page_centered'>%s %s</h4>", $actor_attr["rating"], $actor_attr["company"]);
 
 		$movie_actor_base_query = "select mid,role from MovieActor where aid=%d";
