@@ -3,12 +3,12 @@
 		$db_connection = mysql_connect($server_name, $login, $password);
 		if (!$db_connection){
 			$error_msg = mysql_error($db_connection);
-			print "Connection Failed: $error_msg <br/>";
+			print "<b>Database Connection Failed!</b><br/>";
 			exit(1);
 		}
 		$db_selected = mysql_select_db("TEST", $db_connection);
 		if (!$db_selected){
-			print "Database doesn't exist! <br/>";
+			print "<b>Database doesn't exist!</b><br/>";
 			exit(1);
 		}
 		return $db_connection;
@@ -18,7 +18,7 @@
 	function choose_db($db_name, $db_connection){
 		$db_selected = mysql_select_db($db_name, $db_connection);
 		if (!$db_selected){
-			print "Database doesn't exist! <br/>";
+			print "<b>Database doesn't exist!</b><br/>";
 			exit(1);
 		}
 		return $db_selected;
@@ -28,7 +28,7 @@
 		$sanitized = mysql_real_escape_string($string, $db_connection);
 		if (!$sanitized){
 			$error_msg = mysql_error($db_connection);
-			print "<b>Error:</b> $error_msg <br/>";
+			print "<b>Database Error!</b> Please make sure the operation was valid.<br/>";
 			exit(1);
 		}
 		return $sanitized;
@@ -38,7 +38,7 @@
 		$result = mysql_query($query, $db_connection);
 		if (!$result){
 			$error_msg = mysql_error($db_connection);
-			print "<b>Error:</b> $error_msg <br/>";
+			print "<b>Database Error!</b> Please make sure the operation was valid.<br/>";
 			exit(1);
 		}
 		return $result;
