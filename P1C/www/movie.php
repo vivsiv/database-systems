@@ -1,5 +1,7 @@
 <?php
+	include 'header.php';
 	include 'db_functions.php';
+	print "<body>";
 	if ($_GET["movie_id"]){
 		$db_connection = create_connection("localhost", "cs143", "");
 		$movie_id = intval(sanitize_string($_GET["movie_id"], $db_connection));
@@ -98,4 +100,5 @@
 		print "<hr/>";
 		close_connection($db_connection);
 	}
+	print "</body>";
 ?>

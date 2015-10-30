@@ -1,5 +1,7 @@
 <?php
+	include 'header.php';
 	include 'db_functions.php';
+	print "<body>";
 	if($_GET['create_movie_actor']){
 		$db_connection = create_connection("localhost", "cs143", "");
 		$movie_actor_base_query = "insert into MovieActor values (%d,%d,'%s')";
@@ -34,5 +36,6 @@
 		run_query($movie_actor_query, $db_connection);
 		close_connection($db_connection);
 	}
+	print "</body>";
 
 ?>

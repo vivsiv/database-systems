@@ -1,5 +1,7 @@
 <?php
+	include 'header.php';
 	include 'db_functions.php';
+	print "<body>";
 	if ($_GET["director_id"]){
 		$db_connection = create_connection("localhost", "cs143", "");
 		$director_id = intval(sanitize_string($_GET["director_id"], $db_connection));
@@ -45,7 +47,5 @@
 		}
 		close_connection($db_connection);
 	}
-
-
-
+	print "</body>";
 ?>

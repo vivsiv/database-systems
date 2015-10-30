@@ -1,5 +1,7 @@
 <?php
+	include 'header.php';
 	include 'db_functions.php';
+	print "<body>";
 	if($_GET["create_person"]){
 		$db_connection = create_connection("localhost", "cs143", "");
 		if($_GET["create_person"]){
@@ -40,4 +42,5 @@
 		}
 		close_connection($db_connection);
 	}
+	print "</body>";
 ?>

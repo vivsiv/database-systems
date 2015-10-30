@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="assets/style.css"/>
-		<h1 class="title">Vivek's Movie Database</h1>
-		<hr/>
-	</head>
+	<?php include 'header.php'; ?>
 	<body>
 		<h2>Search for Actor or Movie</h2>
 		<form id="search_form" action='search.php' method='GET'>
@@ -51,7 +47,7 @@
 			<input id='submit' type='submit' value='Create Movie'/>
 		</form>
 		<hr/>
-		
+
 	<?php
 		include 'search.php'; 
 		include 'create.php';

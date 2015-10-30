@@ -1,5 +1,7 @@
 <?php
+	include 'header.php';
 	include 'db_functions.php';
+	print "<body>";
 	if($_GET["search"]){
 		$search = $_GET["search"];
 		print "<b>Searched:</b> '" . $search . "'";
@@ -45,4 +47,5 @@
 
 		close_connection($db_connection);
 	}
+	print "</body>";
 ?>

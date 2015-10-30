@@ -1,4 +1,6 @@
 <?php
+	include 'header.php';
+	print "<body>";
 	if ($_GET['movie_title']){
 		$movie_title = $_GET['movie_title'];
 		print "<h2>Add Actor to $movie_title";
@@ -34,3 +36,5 @@
 	}
 ?>
 </form>
+
+<?php print "</body>"; ?>

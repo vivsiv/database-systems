@@ -1,5 +1,7 @@
 <?php
+	include 'header.php';
 	include 'db_functions.php';
+	print "<body>";
 	if($_GET["create_movie"]) {
 		$db_connection = create_connection("localhost", "cs143", "");
 		$max_movie_query = "select id from MaxMovieID order by id desc limit 1";
@@ -21,4 +23,5 @@
 		run_query($max_movie_update_query, $db_connection);
 		close_connection($db_connection);
 	}
+	print "</body>";
 ?>

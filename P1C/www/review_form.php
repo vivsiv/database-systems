@@ -1,3 +1,7 @@
+<?php
+	include 'header.php';
+	print "<body>";
+?>
 <h2>Add a Review for <?php print $_GET['movie_title'] ?></h2>
 <form id="create_review" action="create_review.php" method="GET">
 	<input name="create_review" type="hidden" value="true"/>
@@ -11,3 +15,4 @@
 	<br/><br/>
 	<input id='submit' type='submit' value='Create Review'/>
 </form>
+<?php print "<body>"; ?>
