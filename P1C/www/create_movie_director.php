@@ -1,8 +1,8 @@
 <?php
 	include 'header.php';
 	include 'db_functions.php';
-	print '<body>';
 	if($_GET['create_movie_director']){
+		print '<body>';
 		$db_connection = create_connection("localhost", "cs143", "");
 		$movie_director_base_query = "insert into MovieDirector values (%d,%d)";
 		$movie_id = NULL;
@@ -33,7 +33,9 @@
 		print $movie_director_query . "<br/>";
 		run_query($movie_director_query, $db_connection);
 		close_connection($db_connection);
+		print "</body>";
+		if ($_GET['movie_id']) header("Location:movie.php?movie_id=$movie_id");
+		else header("Location:director.php?director_id=$director_id");
 	}
-	print "</body>";
 
 ?>

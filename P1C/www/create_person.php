@@ -1,13 +1,14 @@
 <?php
 	include 'header.php';
 	include 'db_functions.php';
-	print "<body>";
+
 	if($_GET["create_person"]){
+		print "<body>";
 		$db_connection = create_connection("localhost", "cs143", "");
 		$max_person_query = "select id from MaxPersonID order by id desc limit 1";
 		$max_person_result = run_query($max_person_query, $db_connection);
 		$old_max_person_id = intval(mysql_fetch_array($max_person_result, MYSQL_ASSOC)["id"]);
-		
+
 		$id = $old_max_person_id + 1;
 		$first = sanitize_string($_GET["first"], $db_connection);
 		$last = sanitize_string($_GET["last"], $db_connection);
@@ -36,6 +37,8 @@
 		print $max_person_update_query . "<br/>";
 		run_query($max_person_update_query, $db_connection);
 		close_connection($db_connection);
+		print "</body>";
+		if ($person_type == "actor") header("Location:actor.php?actor_id=$id");
+		else header("Location:director.php?director_id=$id");
 	}
-	print "</body>";
 ?>

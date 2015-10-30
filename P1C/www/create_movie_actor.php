@@ -1,8 +1,8 @@
 <?php
 	include 'header.php';
 	include 'db_functions.php';
-	print "<body>";
 	if($_GET['create_movie_actor']){
+		print "<body>";
 		$db_connection = create_connection("localhost", "cs143", "");
 		$movie_actor_base_query = "insert into MovieActor values (%d,%d,'%s')";
 		$movie_id = NULL;
@@ -35,7 +35,9 @@
 		print $movie_actor_query . "<br/>";
 		run_query($movie_actor_query, $db_connection);
 		close_connection($db_connection);
+		print "</body>";
+		if ($_GET['movie_id']) header("Location:movie.php?movie_id=$movie_id");
+		else header("Location:actor.php?actor_id=$actor_id");
 	}
-	print "</body>";
 
 ?>

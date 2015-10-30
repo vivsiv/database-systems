@@ -1,8 +1,8 @@
 <?php
 	include 'header.php';
 	include 'db_functions.php';
-	print "<body>";
 	if($_GET["create_review"]){
+		print "<body>";
 		$db_connection = create_connection("localhost", "cs143", "");
 		$name = sanitize_string($_GET["review_name"], $db_connection);
 		$date = date('Y-m-d H:i:s');
@@ -17,7 +17,8 @@
 		run_query($review_query, $db_connection);
 
 		close_connection($db_connection);
+		print "</body>";
+		header("Location: movie.php?movie_id=$mid");
 	}
-	print "</body>";
 
 ?>
