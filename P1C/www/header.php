@@ -1,7 +1,6 @@
 <head>
 	<link rel="stylesheet" type="text/css" href="assets/style.css"/>
-	<h1 class="title">Vivek's Movie Database</h1>
-	<p class='header_link'><a href="index.php">Home</a></p>
+	<h1 class="title"><a href="index.php">Vivek's Movie Database</a></h1>
 	<hr/>
 
 	<h2 id='search_header'>Search for a Movie, Actor, or Director</h2>
