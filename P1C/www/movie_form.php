@@ -8,6 +8,7 @@
 	      <label class="form_label">Year: </label><input class="form_input" type="text" name="year"/><br/><br/>
 	      <label class="form_label">Rating: </label><input class="form_input" type="text" name="rating"/><br/><br/>
 	      <label class="form_label">Company: </label><input class="form_input_large" type="text" name="company"/><br/><br/>
+	      <label class="form_label">Genre(s): </label><input class="form_input_large" type="text" name="genre"/><br/><br/>
 	   </div>
 		<input class='form_submit' type='submit' value='Create Movie'/>
 	</form>

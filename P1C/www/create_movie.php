@@ -22,6 +22,19 @@
 		$max_movie_update_query = sprintf("update MaxMovieID set id=%d where id=%d", $id, $old_max_movie_id);
 		print $max_movie_update_query . "<br/>";
 		run_query($max_movie_update_query, $db_connection);
+
+		if ($_GET["genre"]){
+			$genres = sanitize_string($_GET["genre"], $db_connection);
+			$genre_array = explode(" ", $genres);
+			$movie_genre_base_query = "insert into MovieGenre values (%d, '%s')";
+			foreach ($genre_array as $genre){
+				$movie_genre_query = sprintf($movie_genre_base_query, $id, $genre);
+				print $movie_genre_query . "<br/>";
+				run_query($movie_genre_query, $db_connection);
+			}
+		}
+		
+
 		close_connection($db_connection);
 		print "</body>";
 		header("Location: movie.php?movie_id=$id");
