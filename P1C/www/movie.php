@@ -22,6 +22,10 @@
 		print $movie_actor_query . "<br/>";
 		$movie_actors = run_query($movie_actor_query, $db_connection);
 
+		print "<p>Actors..</p>";
+		$url_safe_title = str_replace(" ", "+", $movie_attr["title"]);
+		$movie_actor_link = sprintf("movie_actor_form.php?movie_id=%d&movie_title=%s", $movie_id ,$url_safe_title);
+		print "<p><a href=$movie_actor_link>Add an Actor to this Movie</a></p>";
 		if (mysql_num_rows($movie_actors) > 0){
 			$aids = array();
 			while ($movie_actor_row = mysql_fetch_array($movie_actors, MYSQL_ASSOC)){
@@ -33,25 +37,24 @@
 			print $actor_query . "<br/>";
 			$actors = run_query($actor_query, $db_connection);
 
-			print "<p>Actors..</p>";
-			$url_safe_title = str_replace(" ", "+", $movie_attr["title"]);
-			$movie_actor_link = sprintf("movie_actor_form.php?movie_id=%d&movie_title=%s", $movie_id ,$url_safe_title);
-			print "<p><a href=$movie_actor_link>Add an Actor to this Movie</a></p>";
-
 			print "<ul>";
 			while ($actor_row = mysql_fetch_array($actors, MYSQL_ASSOC)){
 				$actor_link = sprintf("actor.php?actor_id=%d", intval($actor_row['id']));
 				printf("<li><a href=%s>%s %s</a></li>", $actor_link, $actor_row["first"], $actor_row["last"]);
 			}
 			print "</ul>";
-			print "<hr/>";
 		}
+		print "<hr/>";
 		
 		$movie_director_base_query = "select did from MovieDirector where mid=%d";
 		$movie_director_query = sprintf($movie_director_base_query, $movie_id);
 		print $movie_director_query . "<br/>";
 		$movie_directors = run_query($movie_director_query, $db_connection);
 
+		print "<p>Directors..</p>";
+		$url_safe_title = str_replace(" ", "+", $movie_attr["title"]);
+		$movie_director_link = sprintf("movie_director_form.php?movie_id=%d&movie_title=%s", $movie_id ,$url_safe_title);
+		print "<p><a href=$movie_director_link>Add a Director to this Movie</a></p>";
 		if (mysql_num_rows($movie_directors) > 0){
 			$dids = array();
 			while ($movie_director_row = mysql_fetch_array($movie_directors, MYSQL_ASSOC)){
@@ -62,19 +65,15 @@
 			$director_query = sprintf($director_base_query, $did_string);
 			print $director_query . "<br/>";
 			$directors = run_query($director_query, $db_connection);
-			print "<p>Directors..</p>";
-			$url_safe_title = str_replace(" ", "+", $movie_attr["title"]);
-			$movie_director_link = sprintf("movie_director_form.php?movie_id=%d&movie_title=%s", $movie_id ,$url_safe_title);
-			print "<p><a href=$movie_director_link>Add a Director to this Movie</a></p>";
 
 			print "<ul>";
 			while ($director_row = mysql_fetch_array($directors, MYSQL_ASSOC)){
 				$director_link = sprintf("director.php?director_id=%d", intval($director_row['id']));
 				printf("<li><a href=%s>%s %s</a></li>", $director_link, $director_row["first"], $director_row["last"]);
 			}
-			print "</ul>";
-			print "<hr/>";
+			print "</ul>";	
 		}
+		print "<hr/>";
 
 		$review_base_query = "select * from Review where mid=%d";
 		$review_query = sprintf($review_base_query, $movie_id);
