@@ -73,8 +73,8 @@
 
 		print "<p>Reviews...</p>";
 		$url_safe_title = str_replace(" ", "+", $movie_attr["title"]);
-			$review_link = sprintf("review_form.php?movie_id=%d&movie_title=%s", $movie_id, $url_safe_title);
-			print "<p><a href=$review_link>Create a review for this Movie</a></p>";
+		$review_link = sprintf("review_form.php?movie_id=%d&movie_title=%s", $movie_id, $url_safe_title);
+		print "<p><a href=$review_link>Create a review for this Movie</a></p>";
 		if (mysql_num_rows($reviews) > 0){
 			while ($review_row = mysql_fetch_array($reviews, MYSQL_ASSOC)){
 				print "<ul>";
