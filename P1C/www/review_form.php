@@ -2,17 +2,16 @@
 	include 'header.php';
 	print "<body>";
 ?>
-<h2>Add a Review for <?php print $_GET['movie_title'] ?></h2>
+<h2 class="form_header">Add a Review for: <?php print $_GET['movie_title'] ?></h2>
 <form id="create_review" action="create_review.php" method="GET">
 	<input name="create_review" type="hidden" value="true"/>
 	<input type="text" name="movie_id" hidden="true" value="<?php print $_GET['movie_id'] ?>"/>
-	<h4>Name</h4>
-	<input type="text" name="review_name"/>
-	<h4>Rating (1-5)</h4>
-	<input type="text" name="rating"/>
-	<h4>Comment</h4>
-	<textarea type="text" name="comment"></textarea>
-	<br/><br/>
-	<input type='submit' value='Create Review'/>
+	<div>
+		<label class="form_label">Review Name: </label><input class="form_input" type="text" name="review_name"/><br/>
+		<label class="form_label">Rating (1-5): </label><input class="form_input"type="text" name="rating"/><br/>
+		<label class="form_label">Comment: </label><textarea class="form_text_area" type="text" name="comment"></textarea>
+	</div>
+	<br/><br/><br/><br/><br/><br/><br/><br/>
+	<input class="form_submit" type='submit' value='Create Review'/>
 </form>
 <?php print "<body>"; ?>

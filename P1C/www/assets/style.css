@@ -35,3 +35,48 @@
 .page_centered {
 	text-align: center;
 }
+
+.form_header {
+	text-align: center;
+}
+
+.form_input_large {
+	width: 300px;
+    display: inline-block;
+    float: left;
+}
+
+.form_input {
+	width: 200px;
+	display: inline-block;
+	float: left;
+	margin-bottom: 15px;
+	height:20px;
+}
+
+.form_label {
+	display: inline-block;
+    float: left;
+    clear: left;
+    width: 40%;
+    text-align: right;
+    font-weight: bold;
+    padding-right: 10px;
+    margin-bottom: 15px;
+}
+
+.form_text_area {
+	width: 250px;
+	height: 95px;
+	display: inline-block;
+	float: left;
+	font-size: 12pt;
+
+}
+
+.form_submit {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 12.5%;
+}

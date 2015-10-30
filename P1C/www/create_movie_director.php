@@ -9,9 +9,8 @@
 		$director_id = NULL;
 		if ($_GET['movie_id']){
 			$movie_id = sanitize_string($_GET['movie_id'], $db_connection);
-			$director_name = sanitize_string($_GET['director_name'], $db_connection);
-			$first = explode(" ", $director_name)[0];
-			$last = explode(" ", $director_name)[1];
+			$first = sanitize_string($_GET['first'], $db_connection);
+			$last = sanitize_string($_GET['last'], $db_connection);
 			$director_base_query = "select id from Director where first='%s' and last='%s'";
 			$director_query = sprintf($director_base_query, $first, $last);
 			print $director_query . "<br/>";
