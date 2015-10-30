@@ -1,8 +1,9 @@
 <?php include 'header.php' ?>
 <body>
 	<h2>Create Actor</h2>
-	<form id="create_actor_form" action='create_actor.php' method='GET'>
-		<input name="create_actor" type="hidden" value="true"/>
+	<form id="create_actor_form" action='create_person.php' method='GET'>
+		<input name="create_person" type="hidden" value="true"/>
+		<input name="person_type" type="hidden" value="actor"/>
 		<h4>First Name</h4>
 		<input type="text" name="first"/>
 		<h4>Last Name</h4>
