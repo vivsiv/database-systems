@@ -4,7 +4,7 @@
 	<p class='header_link'><a href="index.php">Home</a></p>
 	<hr/>
 
-	<h2 id='search_header'>Search for Actor or Movie</h2>
+	<h2 id='search_header'>Search for a Movie, Actor, or Director</h2>
 	<form id="search_form" action='search.php' method='GET'>
 		<textarea id='search' name='search'></textarea>
 		<br/><br/>
