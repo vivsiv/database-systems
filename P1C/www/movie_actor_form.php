@@ -32,7 +32,7 @@
 		print "<h4>Role</h4>";
 		print "<textarea type='text' name='role'></textarea>";
 		print "<br/><br/>";
-		print "<input id='submit' type='submit' value='Add Movie'/>";
+		print "<input type='submit' value='Add Movie'/>";
 	}
 ?>
 </form>

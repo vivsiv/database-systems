@@ -13,6 +13,6 @@
 	<h4>Comment</h4>
 	<textarea type="text" name="comment"></textarea>
 	<br/><br/>
-	<input id='submit' type='submit' value='Create Review'/>
+	<input type='submit' value='Create Review'/>
 </form>
 <?php print "<body>"; ?>

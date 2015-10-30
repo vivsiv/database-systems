@@ -5,22 +5,25 @@
 .header_link {
 	text-align: center;
 }
-
-#search_select {
-	width:25%;
-	vertical-align: middle;
-	float:left;
-	margin-right:10px;
+#search_header {
+	text-align: center;
 }
 
 #search {
 	width:60%;
-	height:50px;
+	height:35px;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
 	border: 2px solid black;
 	font-size: 13pt;
+	text-align: center;
 }
 
-#submit {
-	width: 35%;
+#search_submit {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 30%;
 	height: 60px;
 }

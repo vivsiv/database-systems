@@ -21,7 +21,7 @@
 		print "<h4>Director Name (First and Last)</h4>";
 		print "<input type='text' name='director_name'/>";
 		print "<br/><br/>";
-		print "<input id='submit' type='submit' value='Add Director'/>";
+		print "<input type='submit' value='Add Director'/>";
 	}
 	else {
 		$director_id = $_GET['director_id'];
@@ -29,7 +29,7 @@
 		print "<h4>Movie Title</h4>";
 		print "<input type='text' name='movie_title'/>";
 		print "<br/><br/>";
-		print "<input id='submit' type='submit' value='Add Movie'/>";
+		print "<input type='submit' value='Add Movie'/>";
 	}
 ?>
 </form>
