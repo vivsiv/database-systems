@@ -34,7 +34,8 @@
 			print "<p>Movies..</p>";
 			print "<ul>";
 			while ($movie_row = mysql_fetch_array($movies, MYSQL_ASSOC)){
-				printf("<li>%s (%s) Rated: %s</li>", $movie_row["title"], $movie_row["year"], $movie_row["rating"]);
+				$movie_link = sprintf("movie.php?movie_id=%d", intval($movie_row['id']));
+				printf("<li><a href=%s>%s (%s) Rated: %s</a></li>", $movie_link, $movie_row["title"], $movie_row["year"], $movie_row["rating"]);
 			}
 			print "</ul>";
 			print "<hr/>";
