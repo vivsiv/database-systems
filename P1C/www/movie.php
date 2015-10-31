@@ -27,7 +27,7 @@
 		$avg_rating_query = sprintf($avg_rating_base_query, $movie_id);
 		$avg_rating_result = run_query($avg_rating_query, $db_connection);
 		$avg_rating = mysql_fetch_array($avg_rating_result, MYSQL_ASSOC)["avg(rating)"];
-		if ($avg_rating) printf("<h4 class='page_centered'>Average %d/5 stars </h4>", $avg_rating);
+		if ($avg_rating) printf("<h4 class='page_centered'>Average %.1f/5 stars </h4>", $avg_rating);
 		
 
 		$movie_actor_base_query = "select aid,role from MovieActor where mid=%d";
