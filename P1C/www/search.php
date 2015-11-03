@@ -26,10 +26,11 @@
 
 		$actor_names = explode(" ", $sanitized_search);
 		$search_term = $actor_names[0];
-		$actor_query = "select * from Actor where first like '%$search_term%' OR last like '%$search_term%' order by last asc";
+		$actor_query = "select * from Actor where first like '%$search_term%' or last like '%$search_term%' order by last asc";
 		if (count($actor_names) > 1){
-			$actor_base_query = "select * from Actor where first='%s' and last='%s'";
-			$actor_query = sprintf($actor_base_query, $actor_names[0], $actor_names[1]);
+			$first = $actor_names[0];
+			$last = $actor_names[1];
+			$actor_query = "select * from Actor where first like '%$first%' and last like '%$last%'";
 		}
 		//print $actor_query . "<br/>";
 		$actors = run_query($actor_query, $db_connection);
@@ -46,8 +47,9 @@
 		$search_term = $director_names[0];
 		$director_query = "select * from Director where first like '%$search_term%' OR last like '%$search_term%' order by last asc";
 		if (count($director_names) > 1){
-			$director_base_query = "select * from Director where first='%s' and last='%s' order by last asc";
-			$director_query = sprintf($director_base_query, $director_names[0], $director_names[1]);
+			$first = $actor_names[0];
+			$last = $actor_names[1];
+			$director_query = "select * from Director where first like '%$first%' and last like '%$last%' order by last asc";
 		}
 		//print $director_query . "<br/>";
 		$directors = run_query($director_query, $db_connection);
