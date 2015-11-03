@@ -11,7 +11,7 @@
 		$sanitized_search = sanitize_string($search, $db_connection);
 	
 		$searched_movie = sprintf("%s", $sanitized_search);
-		$movie_query = "select * from Movie where title like '%$searched_movie%'";
+		$movie_query = "select * from Movie where title like '%$searched_movie%' order by title asc";
 		//print $movie_query . "<br/>";
 		
 		$movies = run_query($movie_query, $db_connection);
@@ -26,7 +26,7 @@
 
 		$actor_names = explode(" ", $sanitized_search);
 		$search_term = $actor_names[0];
-		$actor_query = "select * from Actor where first like '%$search_term%' OR last like '%$search_term%'";
+		$actor_query = "select * from Actor where first like '%$search_term%' OR last like '%$search_term%' order by last asc";
 		if (count($actor_names) > 1){
 			$actor_base_query = "select * from Actor where first='%s' and last='%s'";
 			$actor_query = sprintf($actor_base_query, $actor_names[0], $actor_names[1]);
@@ -44,9 +44,9 @@
 
 		$director_names = explode(" ", $sanitized_search);
 		$search_term = $director_names[0];
-		$director_query = "select * from Director where first like '%$search_term%' OR last like '%$search_term%'";
+		$director_query = "select * from Director where first like '%$search_term%' OR last like '%$search_term%' order by last asc";
 		if (count($director_names) > 1){
-			$director_base_query = "select * from Director where first='%s' and last='%s'";
+			$director_base_query = "select * from Director where first='%s' and last='%s' order by last asc";
 			$director_query = sprintf($director_base_query, $director_names[0], $director_names[1]);
 		}
 		//print $director_query . "<br/>";
