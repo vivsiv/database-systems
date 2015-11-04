@@ -16,11 +16,11 @@
 		$company = sanitize_string($_GET["company"], $db_connection);
 		$movie_base_query = "insert into Movie values (%d,'%s',%d,'%s','%s')";
 		$movie_query = sprintf($movie_base_query, $id, $title, $year, $rating, $company);
-		print $movie_query . "<br/>";
+		//print $movie_query . "<br/>";
 		run_query($movie_query, $db_connection);
 
 		$max_movie_update_query = sprintf("update MaxMovieID set id=%d where id=%d", $id, $old_max_movie_id);
-		print $max_movie_update_query . "<br/>";
+		//print $max_movie_update_query . "<br/>";
 		run_query($max_movie_update_query, $db_connection);
 
 		if ($_GET["genre"]){
@@ -29,7 +29,7 @@
 			$movie_genre_base_query = "insert into MovieGenre values (%d, '%s')";
 			foreach ($genre_array as $genre){
 				$movie_genre_query = sprintf($movie_genre_base_query, $id, $genre);
-				print $movie_genre_query . "<br/>";
+				//print $movie_genre_query . "<br/>";
 				run_query($movie_genre_query, $db_connection);
 			}
 		}
