@@ -132,6 +132,36 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
 
 RC SqlEngine::load(const string& table, const string& loadfile, bool index)
 {
+  ifstream loadstream(loadfile);
+  RecordFile loadRecord;
+  int key;
+  std::string tablename, value;
+  RecordId lastRecord;
+
+  if (!loadstream){
+    cerr << "File not found!" << endl;
+    exit(1);
+  }
+
+  tablename = table + ".tbl";
+  loadRecord.open(tablename, 'w');
+
+  while (loadstream){
+    std::string record;
+    getline(loadstream, record);
+    //cout << record << endl;
+    if (!loadstream.eof()){
+      parseLoadLine(record, key, value);
+      lastRecord = loadRecord.endRid();
+      loadRecord.append(key,value,lastRecord);
+      //fprintf(stdout, "key: %d, value: %s\n", key, value.c_str());
+    }
+    
+  }
+
+  
+  
+  //RecordFile.open()
   /* your code here */
 
   return 0;
