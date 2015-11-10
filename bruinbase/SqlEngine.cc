@@ -138,13 +138,17 @@ RC SqlEngine::load(const string& table, const string& loadfile, bool index)
   std::string tablename, value;
   RecordId lastRecord;
 
+  RC errcode;
+  errcode = 0;
   if (!loadstream){
     cerr << "File not found!" << endl;
-    exit(1);
+    errcode = RC_FILE_OPEN_FAILED;
+    return errcode;
   }
 
   tablename = table + ".tbl";
-  loadRecord.open(tablename, 'w');
+  errcode = loadRecord.open(tablename, 'w');
+  if (errcode != 0) return errcode;
 
   while (loadstream){
     std::string record;
@@ -153,18 +157,13 @@ RC SqlEngine::load(const string& table, const string& loadfile, bool index)
     if (!loadstream.eof()){
       parseLoadLine(record, key, value);
       lastRecord = loadRecord.endRid();
-      loadRecord.append(key,value,lastRecord);
+      errcode = loadRecord.append(key,value,lastRecord);
       //fprintf(stdout, "key: %d, value: %s\n", key, value.c_str());
     }
     
   }
 
-  
-  
-  //RecordFile.open()
-  /* your code here */
-
-  return 0;
+  return errcode;
 }
 
 RC SqlEngine::parseLoadLine(const string& line, int& key, string& value)
