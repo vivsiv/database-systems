@@ -75,10 +75,6 @@ RC BTLeafNode::write(PageId pid, PageFile& pf)
  */
 int BTLeafNode::getKeyCount()
 {
-	// if (keyCount == 0){
-	// 	int numKeys = *(reinterpret_cast<int*>(buffer));
-	// 	keyCount = numKeys;
-	// }
 	return keyCount;
 }
 
