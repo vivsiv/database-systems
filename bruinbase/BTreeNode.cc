@@ -8,8 +8,27 @@ using namespace std;
  * @param pf[IN] PageFile to read from
  * @return 0 if successful. Return an error code if there is an error.
  */
+void BTLeafNode::printNode(){
+	int size = *(reinterpret_cast<int*>(buffer));
+	printf("Printing Node size: %d\n", size);
+	char* startAddr = buffer + sizeof(int);
+	LeafNodeEntry *currentEntry = reinterpret_cast<LeafNodeEntry *>(startAddr);
+	for (int i=0; i < keyCount; i++){
+		printf("Printing entry at addr %p\n", (void *)currentEntry);
+		printf("Entry, key: %d pageId:%d slotId: %d\n", currentEntry->key, (currentEntry->recordId).pid, (currentEntry->recordId).sid);
+		currentEntry++;
+	}
+	printf("\n");
+}
+
 RC BTLeafNode::read(PageId pid, const PageFile& pf)
-{ return 0; }
+{
+	RC errcode;
+	errcode = pf.read(pid, buffer);
+	keyCount = 0;
+
+	return errcode;
+}
     
 /*
  * Write the content of the node to the page pid in the PageFile pf.
@@ -18,14 +37,22 @@ RC BTLeafNode::read(PageId pid, const PageFile& pf)
  * @return 0 if successful. Return an error code if there is an error.
  */
 RC BTLeafNode::write(PageId pid, PageFile& pf)
-{ return 0; }
+{ 
+	return pf.write(pid,buffer);
+}
 
 /*
  * Return the number of keys stored in the node.
  * @return the number of keys in the node
  */
 int BTLeafNode::getKeyCount()
-{ return 0; }
+{
+	if (keyCount == 0){
+		int numKeys = *(reinterpret_cast<int*>(buffer));
+		keyCount = numKeys;
+	}
+	return keyCount;
+}
 
 /*
  * Insert a (key, rid) pair to the node.
@@ -34,7 +61,22 @@ int BTLeafNode::getKeyCount()
  * @return 0 if successful. Return an error code if the node is full.
  */
 RC BTLeafNode::insert(int key, const RecordId& rid)
-{ return 0; }
+{ 
+	char* startAddr = buffer + sizeof(int);
+	LeafNodeEntry *currentEntry = reinterpret_cast<LeafNodeEntry *>(startAddr);
+	int currentKey = 0;
+	while(currentKey < keyCount && currentEntry->key < key){
+		currentEntry++;
+		currentKey++;
+	}
+	LeafNodeEntry *newEntry = currentEntry;
+	memmove(currentEntry + 1, currentEntry, (keyCount - currentKey) * sizeof(LeafNodeEntry));
+	newEntry->recordId = rid;
+	newEntry->key = key;
+	keyCount++;
+	*(reinterpret_cast<int*>(buffer)) = keyCount;
+	return 0; 
+}
 
 /*
  * Insert the (key, rid) pair to the node
@@ -62,7 +104,30 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
  * @return 0 if searchKey is found. Otherwise return an error code.
  */
 RC BTLeafNode::locate(int searchKey, int& eid)
-{ return 0; }
+{ 
+	int currKey, keyIdx;
+	RC errcode;
+	char* startAddr = buffer + sizeof(int);
+	LeafNodeEntry *currentEntry = reinterpret_cast<LeafNodeEntry *>(startAddr);
+	keyIdx = 0;
+	errcode = 0;
+	while (keyIdx < keyCount){
+		currKey = currentEntry->key;
+		if (currKey == searchKey){
+			eid = keyIdx;
+			break;
+		}
+		else if (currKey > searchKey){
+			//if (keyIdx > 0) currentEntry--;
+			eid = keyIdx;
+			errcode = RC_NO_SUCH_RECORD;
+			break;
+		}
+		currentEntry++;
+		keyIdx++;
+	}
+	return errcode; 
+}
 
 /*
  * Read the (key, rid) pair from the eid entry.
@@ -72,14 +137,31 @@ RC BTLeafNode::locate(int searchKey, int& eid)
  * @return 0 if successful. Return an error code if there is an error.
  */
 RC BTLeafNode::readEntry(int eid, int& key, RecordId& rid)
-{ return 0; }
+{ 
+	RC errcode;
+	if (eid > 0 && eid < keyCount){
+		char* startAddr = buffer + sizeof(int);
+		LeafNodeEntry *firstEntry = reinterpret_cast<LeafNodeEntry *>(startAddr);
+		LeafNodeEntry *readEntry = firstEntry + eid;
+		key = readEntry->key;
+		rid = readEntry->recordId;
+		errcode = 0;
+	}
+	else {
+		errcode = RC_NO_SUCH_RECORD;
+	}
+	return errcode; 
+}
 
 /*
  * Return the pid of the next slibling node.
  * @return the PageId of the next sibling node 
  */
 PageId BTLeafNode::getNextNodePtr()
-{ return 0; }
+{ 
+	int* lastNode = reinterpret_cast<int *>((buffer + PageFile::PAGE_SIZE) - sizeof(int));
+	return *lastNode;
+}
 
 /*
  * Set the pid of the next slibling node.
@@ -87,7 +169,11 @@ PageId BTLeafNode::getNextNodePtr()
  * @return 0 if successful. Return an error code if there is an error.
  */
 RC BTLeafNode::setNextNodePtr(PageId pid)
-{ return 0; }
+{ 
+	int* lastNode = reinterpret_cast<int *>((buffer + PageFile::PAGE_SIZE) - sizeof(int));
+	*lastNode = pid;
+	return 0; 
+}
 
 /*
  * Read the content of the node from the page pid in the PageFile pf.
