@@ -42,7 +42,13 @@ BTLeafNode::LeafNodeEntry* BTLeafNode::getFirstEntry(){
 }
 
 BTLeafNode::LeafNodeEntry* BTLeafNode::getLastEntry(){
-	char* startAddr = buffer + sizeof(NodeHead) + (keyCount * (sizeof(LeafNodeEntry)));
+	char* startAddr = buffer + sizeof(NodeHead);
+	if (keyCount > 0) startAddr += keyCount  * (sizeof(LeafNodeEntry));
+	return reinterpret_cast<LeafNodeEntry *>(startAddr);
+}
+
+BTLeafNode::LeafNodeEntry* BTLeafNode::getMiddleEntry(){
+	char* startAddr = buffer + sizeof(NodeHead) + ((keyCount/2) * (sizeof(LeafNodeEntry)));
 	return reinterpret_cast<LeafNodeEntry *>(startAddr);
 }
 
@@ -113,7 +119,26 @@ RC BTLeafNode::insert(int key, const RecordId& rid)
  */
 RC BTLeafNode::insertAndSplit(int key, const RecordId& rid, 
                               BTLeafNode& sibling, int& siblingKey)
-{ return 0; }
+{
+
+	// insert(key,rid);
+	// LeafNodeEntry* splitPoint = getMiddleEntry();
+	// splitPoint++;
+
+
+	// int leftSize = keyCount - (keyCount/2);
+	// int rightSize = keyCount/2;
+
+	// PageFile pf;
+
+	// BTLeafNode sibling;
+	// sibling.read(pf.endPid(), pf);
+	
+	
+	// setSizes()
+
+	return 0; 
+}
 
 /**
  * If searchKey exists in the node, set eid to the index entry
@@ -161,7 +186,7 @@ RC BTLeafNode::locate(int searchKey, int& eid)
 RC BTLeafNode::readEntry(int eid, int& key, RecordId& rid)
 { 
 	RC errcode;
-	if (eid > 0 && eid < keyCount){
+	if (eid >= 0 && eid < keyCount){
 		LeafNodeEntry *firstEntry = getFirstEntry();
 		LeafNodeEntry *readEntry = firstEntry + eid;
 		key = readEntry->key;

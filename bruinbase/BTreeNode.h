@@ -117,14 +117,14 @@ class BTLeafNode {
     } LeafNodeEntry;
 
     typedef struct {
-        int size;
-        int nextPage;
-    } NodeTail;
-
-    typedef struct {
         int prevPage;
         int size;
     } NodeHead;
+
+    typedef struct {
+        int size;
+        int nextPage;
+    } NodeTail;
 
     NodeHead* getHead();
     NodeTail* getTail();
@@ -133,6 +133,7 @@ class BTLeafNode {
 
     LeafNodeEntry* getFirstEntry();
     LeafNodeEntry* getLastEntry();
+    LeafNodeEntry* getMiddleEntry();
 }; 
 
 
