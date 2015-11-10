@@ -115,6 +115,24 @@ class BTLeafNode {
       // The key of the record
       int  key;  
     } LeafNodeEntry;
+
+    typedef struct {
+        int size;
+        int nextPage;
+    } NodeTail;
+
+    typedef struct {
+        int prevPage;
+        int size;
+    } NodeHead;
+
+    NodeHead* getHead();
+    NodeTail* getTail();
+
+    void setHeadSizes(int s);
+
+    LeafNodeEntry* getFirstEntry();
+    LeafNodeEntry* getLastEntry();
 }; 
 
 

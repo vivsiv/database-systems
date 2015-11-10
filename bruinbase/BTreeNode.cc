@@ -9,10 +9,9 @@ using namespace std;
  * @return 0 if successful. Return an error code if there is an error.
  */
 void BTLeafNode::printNode(){
-	int size = *(reinterpret_cast<int*>(buffer));
-	printf("Printing Node size: %d\n", size);
-	char* startAddr = buffer + sizeof(int);
-	LeafNodeEntry *currentEntry = reinterpret_cast<LeafNodeEntry *>(startAddr);
+	NodeHead *nh = getHead();
+	printf("Printing Node size: %d\n", nh->size);
+	LeafNodeEntry *currentEntry = getFirstEntry();
 	for (int i=0; i < keyCount; i++){
 		printf("Printing entry at addr %p\n", (void *)currentEntry);
 		printf("Entry, key: %d pageId:%d slotId: %d\n", currentEntry->key, (currentEntry->recordId).pid, (currentEntry->recordId).sid);
@@ -21,11 +20,40 @@ void BTLeafNode::printNode(){
 	printf("\n");
 }
 
+BTLeafNode::NodeHead* BTLeafNode::getHead(){
+	return reinterpret_cast<NodeHead*>(buffer);
+}
+
+BTLeafNode::NodeTail* BTLeafNode::getTail(){
+	char* tailAddr = buffer + PageFile::PAGE_SIZE - sizeof(NodeTail);
+	return reinterpret_cast<NodeTail*>(tailAddr);
+}
+
+void BTLeafNode::setHeadSizes(int s){
+	NodeHead *nh = getHead();
+	nh->size = s;
+	NodeTail *nt = getTail();
+	nt->size = s;
+}
+
+BTLeafNode::LeafNodeEntry* BTLeafNode::getFirstEntry(){
+	char* startAddr = buffer + sizeof(NodeHead);
+	return reinterpret_cast<LeafNodeEntry *>(startAddr);
+}
+
+BTLeafNode::LeafNodeEntry* BTLeafNode::getLastEntry(){
+	char* startAddr = buffer + sizeof(NodeHead) + (keyCount * (sizeof(LeafNodeEntry)));
+	return reinterpret_cast<LeafNodeEntry *>(startAddr);
+}
+
 RC BTLeafNode::read(PageId pid, const PageFile& pf)
 {
 	RC errcode;
 	errcode = pf.read(pid, buffer);
-	keyCount = 0;
+	NodeHead *nh = getHead();
+	NodeTail *nt = getTail();
+	if (nh->size == nt->size) keyCount = nh->size;
+	else keyCount = 0;
 
 	return errcode;
 }
@@ -47,10 +75,10 @@ RC BTLeafNode::write(PageId pid, PageFile& pf)
  */
 int BTLeafNode::getKeyCount()
 {
-	if (keyCount == 0){
-		int numKeys = *(reinterpret_cast<int*>(buffer));
-		keyCount = numKeys;
-	}
+	// if (keyCount == 0){
+	// 	int numKeys = *(reinterpret_cast<int*>(buffer));
+	// 	keyCount = numKeys;
+	// }
 	return keyCount;
 }
 
@@ -62,8 +90,7 @@ int BTLeafNode::getKeyCount()
  */
 RC BTLeafNode::insert(int key, const RecordId& rid)
 { 
-	char* startAddr = buffer + sizeof(int);
-	LeafNodeEntry *currentEntry = reinterpret_cast<LeafNodeEntry *>(startAddr);
+	LeafNodeEntry *currentEntry = getFirstEntry();
 	int currentKey = 0;
 	while(currentKey < keyCount && currentEntry->key < key){
 		currentEntry++;
@@ -74,7 +101,7 @@ RC BTLeafNode::insert(int key, const RecordId& rid)
 	newEntry->recordId = rid;
 	newEntry->key = key;
 	keyCount++;
-	*(reinterpret_cast<int*>(buffer)) = keyCount;
+	setHeadSizes(keyCount);
 	return 0; 
 }
 
@@ -107,8 +134,7 @@ RC BTLeafNode::locate(int searchKey, int& eid)
 { 
 	int currKey, keyIdx;
 	RC errcode;
-	char* startAddr = buffer + sizeof(int);
-	LeafNodeEntry *currentEntry = reinterpret_cast<LeafNodeEntry *>(startAddr);
+	LeafNodeEntry *currentEntry = getFirstEntry();
 	keyIdx = 0;
 	errcode = 0;
 	while (keyIdx < keyCount){
@@ -140,8 +166,7 @@ RC BTLeafNode::readEntry(int eid, int& key, RecordId& rid)
 { 
 	RC errcode;
 	if (eid > 0 && eid < keyCount){
-		char* startAddr = buffer + sizeof(int);
-		LeafNodeEntry *firstEntry = reinterpret_cast<LeafNodeEntry *>(startAddr);
+		LeafNodeEntry *firstEntry = getFirstEntry();
 		LeafNodeEntry *readEntry = firstEntry + eid;
 		key = readEntry->key;
 		rid = readEntry->recordId;
@@ -159,8 +184,8 @@ RC BTLeafNode::readEntry(int eid, int& key, RecordId& rid)
  */
 PageId BTLeafNode::getNextNodePtr()
 { 
-	int* lastNode = reinterpret_cast<int *>((buffer + PageFile::PAGE_SIZE) - sizeof(int));
-	return *lastNode;
+	NodeTail* nt = getTail();
+	return nt->nextPage;
 }
 
 /*
@@ -170,8 +195,8 @@ PageId BTLeafNode::getNextNodePtr()
  */
 RC BTLeafNode::setNextNodePtr(PageId pid)
 { 
-	int* lastNode = reinterpret_cast<int *>((buffer + PageFile::PAGE_SIZE) - sizeof(int));
-	*lastNode = pid;
+	NodeTail* nt = getTail();
+	nt->nextPage = pid;	
 	return 0; 
 }
 
