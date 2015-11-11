@@ -233,8 +233,54 @@ RC BTLeafNode::setNextNodePtr(PageId pid)
  * @param pf[IN] PageFile to read from
  * @return 0 if successful. Return an error code if there is an error.
  */
+void BTNonLeafNode::printNode(){
+	printf("Printing Node of Size: %d\n", keyCount);
+	NonLeafNodeEntry *currentEntry = getFirstEntry();
+	for (int i=0; i < keyCount; i++){
+		printf("Printing entry at addr %p\n", (void *)currentEntry);
+		printf("Entry, pageId:%d keyId:%d\n", currentEntry->pageId, currentEntry->key);
+		currentEntry++;
+	}
+	printf("\n");	
+}
+
+int BTNonLeafNode::checkSize(){
+	int *firstSize = reinterpret_cast<int*>(buffer);
+	int *lastSize = reinterpret_cast<int*>(buffer + PageFile::PAGE_SIZE - sizeof(int));
+	return *firstSize == *lastSize;
+}
+
+void BTNonLeafNode::setKeyCount(int k){
+	keyCount = k;
+	int *firstSize = reinterpret_cast<int*>(buffer);
+	*firstSize = k;
+	int *lastSize = reinterpret_cast<int*>(buffer + PageFile::PAGE_SIZE - sizeof(int));
+	*lastSize = k;
+}
+
+BTNonLeafNode::NonLeafNodeEntry* BTNonLeafNode::getFirstEntry(){
+	char* startAddr = buffer + sizeof(int);
+	return reinterpret_cast<NonLeafNodeEntry *>(startAddr);
+}
+
+BTNonLeafNode::NonLeafNodeEntry* BTNonLeafNode::getMiddleEntry(){
+	int middle = (keyCount / 2);
+	char* startAddr = buffer + sizeof(int) + (middle *(sizeof(NonLeafNodeEntry)));
+	printf("Midpoint address:%p\n",startAddr);
+	return reinterpret_cast<NonLeafNodeEntry *>(startAddr);
+
+}
+
 RC BTNonLeafNode::read(PageId pid, const PageFile& pf)
-{ return 0; }
+{ 
+	RC errcode;
+	errcode = pf.read(pid, buffer);
+	pageId = pid;
+	if (checkSize()) setKeyCount(*(reinterpret_cast<int*>(buffer)));
+	else setKeyCount(0);
+
+	return errcode;
+}
     
 /*
  * Write the content of the node to the page pid in the PageFile pf.
@@ -243,14 +289,18 @@ RC BTNonLeafNode::read(PageId pid, const PageFile& pf)
  * @return 0 if successful. Return an error code if there is an error.
  */
 RC BTNonLeafNode::write(PageId pid, PageFile& pf)
-{ return 0; }
+{ 
+	return pf.write(pid,buffer);
+}
 
 /*
  * Return the number of keys stored in the node.
  * @return the number of keys in the node
  */
 int BTNonLeafNode::getKeyCount()
-{ return 0; }
+{ 
+	return keyCount; 
+}
 
 
 /*
@@ -260,7 +310,20 @@ int BTNonLeafNode::getKeyCount()
  * @return 0 if successful. Return an error code if the node is full.
  */
 RC BTNonLeafNode::insert(int key, PageId pid)
-{ return 0; }
+{
+	NonLeafNodeEntry* currentEntry = getFirstEntry();
+	int currentKey = 0;
+	while(currentKey < keyCount && currentEntry->key < key){
+		currentEntry++;
+		currentKey++;
+	}
+	NonLeafNodeEntry *newEntry = currentEntry;
+	memmove(currentEntry + 1, currentEntry, (keyCount - currentKey) * sizeof(NonLeafNodeEntry));
+	newEntry->pageId = pid;
+	newEntry->key = key;
+	setKeyCount(keyCount + 1);
+	return 0; 
+}
 
 /*
  * Insert the (key, pid) pair to the node
@@ -272,8 +335,34 @@ RC BTNonLeafNode::insert(int key, PageId pid)
  * @param midKey[OUT] the key in the middle after the split. This key should be inserted to the parent node.
  * @return 0 if successful. Return an error code if there is an error.
  */
+
+void BTNonLeafNode::initialize(int numKeys, const char* cpyStart){
+	NonLeafNodeEntry* firstEntry = getFirstEntry();
+	memcpy(firstEntry, cpyStart, numKeys * sizeof(NonLeafNodeEntry));
+	setKeyCount(numKeys);
+}
+
 RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, int& midKey)
-{ return 0; }
+{ 
+	insert(key,pid);
+	printf("Before splitting\n");
+	printNode();
+	printf("---\n");
+	NonLeafNodeEntry *midPoint = getMiddleEntry();
+	midKey = midPoint->key;
+	printf("Pre Split MidKey:%d\n",midKey);
+
+	NonLeafNodeEntry *splitPoint = midPoint + 1;
+	int leftSize = keyCount/2;
+	int rightSize = keyCount/2 - !(keyCount % 2);
+
+	sibling.initialize(rightSize, reinterpret_cast<char*>(splitPoint));
+	
+	memset(midPoint, 0, (rightSize + 1) * sizeof(NonLeafNodeEntry));
+	setKeyCount(leftSize);
+
+	return 0; 
+}
 
 /*
  * Given the searchKey, find the child-node pointer to follow and
@@ -283,7 +372,19 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
  * @return 0 if successful. Return an error code if there is an error.
  */
 RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
-{ return 0; }
+{ 
+	RC errcode;
+	NonLeafNodeEntry* currentEntry = getFirstEntry();
+	for (int i; i < keyCount; i++){
+		if (searchKey == currentEntry->key){
+			pid = currentEntry->pageId;
+			errcode = 0;
+			break;
+		}
+		else errcode = RC_NO_SUCH_RECORD;
+	}
+	return errcode; 
+}
 
 /*
  * Initialize the root node with (pid1, key, pid2).
@@ -293,4 +394,11 @@ RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
  * @return 0 if successful. Return an error code if there is an error.
  */
 RC BTNonLeafNode::initializeRoot(PageId pid1, int key, PageId pid2)
-{ return 0; }
+{ 
+	PageFile pf;
+	BTNonLeafNode root;
+	root.insert(key, pid1);
+	root.insert(NO_KEY,pid2);
+
+	return 0; 
+}

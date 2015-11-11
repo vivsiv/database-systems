@@ -109,7 +109,7 @@ class BTLeafNode {
 
     int keyCount;
     void setKeyCount(int k);
-    
+
     int pageId;
 
     typedef struct {
@@ -211,12 +211,34 @@ class BTNonLeafNode {
     */
     RC write(PageId pid, PageFile& pf);
 
+    void printNode();
+
   private:
    /**
     * The main memory buffer for loading the content of the disk page 
     * that contains the node.
     */
     char buffer[PageFile::PAGE_SIZE];
+
+    int keyCount;
+    void setKeyCount(int k);
+    int checkSize();
+    
+    int pageId;
+
+    typedef struct {
+      // The slot of the record in the page
+      int  pageId;  
+      // The key of the record
+      int  key;  
+    } NonLeafNodeEntry;
+
+    NonLeafNodeEntry* getFirstEntry();
+    NonLeafNodeEntry* getMiddleEntry();
+
+    void initialize(int numKeys, const char* cpyStart);
+
+    static const int NO_KEY = -1;
 }; 
 
 #endif /* BTREENODE_H */
