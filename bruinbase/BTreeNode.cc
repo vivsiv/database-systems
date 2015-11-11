@@ -9,8 +9,7 @@ using namespace std;
  * @return 0 if successful. Return an error code if there is an error.
  */
 void BTLeafNode::printNode(){
-	NodeHead *nh = getHead();
-	printf("Printing Node size: %d\n", nh->size);
+	printf("Printing Node of Size: %d\n", keyCount);
 	LeafNodeEntry *currentEntry = getFirstEntry();
 	for (int i=0; i < keyCount; i++){
 		printf("Printing entry at addr %p\n", (void *)currentEntry);
@@ -29,11 +28,12 @@ BTLeafNode::NodeTail* BTLeafNode::getTail(){
 	return reinterpret_cast<NodeTail*>(tailAddr);
 }
 
-void BTLeafNode::setHeadSizes(int s){
+void BTLeafNode::setKeyCount(int k){
+	keyCount = k;
 	NodeHead *nh = getHead();
-	nh->size = s;
+	nh->size = k;
 	NodeTail *nt = getTail();
-	nt->size = s;
+	nt->size = k;
 }
 
 BTLeafNode::LeafNodeEntry* BTLeafNode::getFirstEntry(){
@@ -48,7 +48,8 @@ BTLeafNode::LeafNodeEntry* BTLeafNode::getLastEntry(){
 }
 
 BTLeafNode::LeafNodeEntry* BTLeafNode::getMiddleEntry(){
-	char* startAddr = buffer + sizeof(NodeHead) + ((keyCount/2) * (sizeof(LeafNodeEntry)));
+	int middle = (keyCount / 2) + (keyCount % 2);
+	char* startAddr = buffer + sizeof(NodeHead) + (middle * (sizeof(LeafNodeEntry)));
 	return reinterpret_cast<LeafNodeEntry *>(startAddr);
 }
 
@@ -56,10 +57,11 @@ RC BTLeafNode::read(PageId pid, const PageFile& pf)
 {
 	RC errcode;
 	errcode = pf.read(pid, buffer);
+	pageId = pid;
 	NodeHead *nh = getHead();
 	NodeTail *nt = getTail();
-	if (nh->size == nt->size) keyCount = nh->size;
-	else keyCount = 0;
+	if (nh->size == nt->size) setKeyCount(nh->size);
+	else setKeyCount(0);
 
 	return errcode;
 }
@@ -102,8 +104,8 @@ RC BTLeafNode::insert(int key, const RecordId& rid)
 	memmove(currentEntry + 1, currentEntry, (keyCount - currentKey) * sizeof(LeafNodeEntry));
 	newEntry->recordId = rid;
 	newEntry->key = key;
-	keyCount++;
-	setHeadSizes(keyCount);
+	//keyCount++;
+	setKeyCount(keyCount + 1);
 	return 0; 
 }
 
@@ -117,25 +119,29 @@ RC BTLeafNode::insert(int key, const RecordId& rid)
  * @param siblingKey[OUT] the first key in the sibling node after split.
  * @return 0 if successful. Return an error code if there is an error.
  */
+
+void BTLeafNode::initialize(int numKeys, int prev, const char* cpyStart){
+	LeafNodeEntry* firstEntry = getFirstEntry();
+	memcpy(firstEntry, cpyStart, numKeys * sizeof(LeafNodeEntry));
+	setKeyCount(numKeys);
+	NodeHead *nh = getHead();
+	nh->prevPage = prev;
+}
+
 RC BTLeafNode::insertAndSplit(int key, const RecordId& rid, 
                               BTLeafNode& sibling, int& siblingKey)
 {
+	insert(key,rid);
+	LeafNodeEntry* splitPoint = getMiddleEntry();
 
-	// insert(key,rid);
-	// LeafNodeEntry* splitPoint = getMiddleEntry();
-	// splitPoint++;
+	int leftSize = keyCount - (keyCount/2);
+	int rightSize = keyCount/2;
 
+	sibling.initialize(rightSize, pageId, reinterpret_cast<char*>(splitPoint));
+	siblingKey = (sibling.getFirstEntry())->key;
 
-	// int leftSize = keyCount - (keyCount/2);
-	// int rightSize = keyCount/2;
-
-	// PageFile pf;
-
-	// BTLeafNode sibling;
-	// sibling.read(pf.endPid(), pf);
-	
-	
-	// setSizes()
+	memset(splitPoint, 0, rightSize * sizeof(LeafNodeEntry));
+	setKeyCount(leftSize);
 
 	return 0; 
 }

@@ -108,6 +108,9 @@ class BTLeafNode {
     char buffer[PageFile::PAGE_SIZE];
 
     int keyCount;
+    void setKeyCount(int k);
+    
+    int pageId;
 
     typedef struct {
       // The slot of the record in the page
@@ -129,11 +132,13 @@ class BTLeafNode {
     NodeHead* getHead();
     NodeTail* getTail();
 
-    void setHeadSizes(int s);
+
 
     LeafNodeEntry* getFirstEntry();
     LeafNodeEntry* getLastEntry();
     LeafNodeEntry* getMiddleEntry();
+
+    void initialize(int numKeys, int prev, const char* cpyStart);
 }; 
 
 
