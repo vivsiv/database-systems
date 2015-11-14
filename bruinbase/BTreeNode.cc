@@ -266,7 +266,6 @@ BTNonLeafNode::NonLeafNodeEntry* BTNonLeafNode::getFirstEntry(){
 BTNonLeafNode::NonLeafNodeEntry* BTNonLeafNode::getMiddleEntry(){
 	int middle = (keyCount / 2);
 	char* startAddr = buffer + sizeof(int) + (middle *(sizeof(NonLeafNodeEntry)));
-	printf("Midpoint address:%p\n",startAddr);
 	return reinterpret_cast<NonLeafNodeEntry *>(startAddr);
 
 }
@@ -345,12 +344,8 @@ void BTNonLeafNode::initialize(int numKeys, const char* cpyStart){
 RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, int& midKey)
 { 
 	insert(key,pid);
-	printf("Before splitting\n");
-	printNode();
-	printf("---\n");
 	NonLeafNodeEntry *midPoint = getMiddleEntry();
 	midKey = midPoint->key;
-	printf("Pre Split MidKey:%d\n",midKey);
 
 	NonLeafNodeEntry *splitPoint = midPoint + 1;
 	int leftSize = keyCount/2;
