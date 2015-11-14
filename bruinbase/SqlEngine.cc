@@ -132,39 +132,43 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
 
 RC SqlEngine::load(const string& table, const string& loadfile, bool index)
 {
-  ifstream loadstream(loadfile);
-  RecordFile loadRecord;
-  int key;
-  std::string tablename, value;
-  RecordId lastRecord;
+    // assume initially index is always false
+  // create RecordFile with name <table>.tbl
+  RC status;
+  const string rfilename = table + ".tbl";
+  RecordFile rcfile;
+  string record;
 
-  RC errcode;
-  errcode = 0;
-  if (!loadstream){
-    cerr << "File not found!" << endl;
-    errcode = RC_FILE_OPEN_FAILED;
-    return errcode;
+
+  // open and read tuples from file loadfile
+  ifstream ldfile(loadfile.c_str());
+  if (!ldfile.is_open()) {
+    cerr << loadfile << " not found!" << endl;
+    return EXIT_FAILURE;
   }
 
-  tablename = table + ".tbl";
-  errcode = loadRecord.open(tablename, 'w');
-  if (errcode != 0) return errcode;
+  status = rcfile.open(rfilename, 'w');
+  if (status !=0) return EXIT_FAILURE; 
 
-  while (loadstream){
-    std::string record;
-    getline(loadstream, record);
-    //cout << record << endl;
-    if (!loadstream.eof()){
-      parseLoadLine(record, key, value);
-      lastRecord = loadRecord.endRid();
-      errcode = loadRecord.append(key,value,lastRecord);
-      //fprintf(stdout, "key: %d, value: %s\n", key, value.c_str());
-    }
+  while (getline(ldfile, record)) {
+    if (ldfile.eof()) break;
+    int key; string value;
+    // parse tuples using SqlEngine::parseLoadLine() method
+    status = parseLoadLine(record, key, value);
+    if (status != 0) return EXIT_FAILURE;
+    // insert tuples into <table>.tbl
+    RecordId last_record = rcfile.endRid();
+    status = rcfile.append(key, value, last_record);
+    if (status != 0) return EXIT_FAILURE;
+  }
+
+  // close the loadfile and record file
+  rcfile.close();
+  ldfile.close();
+  return 0;
     
-  }
-
-  return errcode;
 }
+
 
 RC SqlEngine::parseLoadLine(const string& line, int& key, string& value)
 {
