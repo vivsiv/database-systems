@@ -72,12 +72,10 @@ RC BTreeIndex::open(const string& indexname, char mode)
 	status = pf.read(INDEX_INFO,buffer);
 	printf("End pid is %d\n", pf.endPid());
 	if (pf.endPid() == INDEX_INFO){
-		printf("No Root\n");
 		rootPid = 1;
 		treeHeight = 1;
 	}
 	else {
-		printf("We Have a root\n");
 		initRoot();
 	}
 	status = pf.read(rootPid, buffer);
@@ -232,5 +230,9 @@ BTLeafNode BTreeIndex::traverse(int searchKey, PageId pid, int currHeight){
  */
 RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
 {
-    return 0;
+	RC errcode;
+	BTLeafNode ln;
+	ln.read(cursor.pid, pf);
+	errcode = ln.readEntry(cursor.eid,key,rid);
+    return errcode;
 }
