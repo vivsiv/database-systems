@@ -18,7 +18,7 @@
  */
 class BTLeafNode {
   public:
-    const static int MAX_NODE_SIZE = 70;
+    const static int MAX_NODE_SIZE = 4;
    /**
     * Insert the (key, rid) pair to the node.
     * Remember that all keys inside a B+tree node should be kept sorted.
@@ -103,6 +103,9 @@ class BTLeafNode {
 
     int getPageId();
 
+    void setParent(PageId parentPage);
+    PageId getParent();
+
   private:
    /**
     * The main memory buffer for loading the content of the disk page 
@@ -140,8 +143,6 @@ class BTLeafNode {
     LeafNodeEntry* getFirstEntry();
     LeafNodeEntry* getLastEntry();
     LeafNodeEntry* getMiddleEntry();
-
-    void setParent(PageId parentPage);
 
     void initialize(int numKeys, int prev, const char* cpyStart);
 }; 
@@ -222,6 +223,7 @@ class BTNonLeafNode {
     int getPageId();
 
     void setParent(PageId parentPage);
+    PageId getParent();
 
   private:
    /**
@@ -257,6 +259,7 @@ class BTNonLeafNode {
 
     NonLeafNodeEntry* getFirstEntry();
     NonLeafNodeEntry* getMiddleEntry();
+    NonLeafNodeEntry* getLastEntry();
 
     void initialize(int numKeys, const char* cpyStart);
 

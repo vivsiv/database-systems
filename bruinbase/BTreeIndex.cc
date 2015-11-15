@@ -22,7 +22,16 @@ BTreeIndex::BTreeIndex()
     rootPid = -1;
 }
 
-void printTree(){
+void BTreeIndex::printTree(){
+	BTNonLeafNode root;
+	printf("Printing Tree at rootPage: %d\n", rootPid);
+	root.read(rootPid, pf);
+	root.printNode();
+	// PageId child1 page;
+	// BTLeafNode child1 = root.locateChildPtr();
+
+
+
 	// int currLevel;
 	// queue<int> q;
 	// q.push(rootPid);
@@ -38,10 +47,26 @@ void printTree(){
 	// if (level > treeHeight) return;
 }
 
+BTreeIndex::rootPageHeader* BTreeIndex::getRootHeader(){
+	return reinterpret_cast<rootPageHeader*>(buffer);
+}
+
 void BTreeIndex::initRoot(){
-	rootPageHeader* rpHeader = reinterpret_cast<rootPageHeader*>(buffer);
+	rootPageHeader* rpHeader = getRootHeader();
 	rootPid = rpHeader->rPid;
 	treeHeight = rpHeader->height;
+}
+
+void BTreeIndex::setTreeHeight(int height){
+	treeHeight = height;
+	rootPageHeader* rpHeader = getRootHeader();
+	rpHeader->height = height;
+}
+
+void BTreeIndex::setRootPage(PageId rootPage){
+	rootPid = rootPage;
+	rootPageHeader* rpHeader = getRootHeader();
+	rpHeader->rPid = rootPage;
 }
 
 /*
@@ -58,9 +83,10 @@ RC BTreeIndex::open(const string& indexname, char mode)
 
 	status = pf.open(ifilename, 'w');
 	status = pf.read(INDEX_INFO,buffer);
+	printf("End pid is %d\n", pf.endPid());
 	if (pf.endPid() == INDEX_INFO){
 		rootPid = 1;
-		treeHeight = 0;
+		treeHeight = 1;
 	}
 	else {
 		initRoot();
@@ -88,8 +114,83 @@ RC BTreeIndex::close()
  */
 RC BTreeIndex::insert(int key, const RecordId& rid)
 {
+	RC errcode;
+	IndexCursor cursor;
+	locate(key, cursor);
+	printf("Located Node, page:%d\n", cursor.pid);
+	BTLeafNode node;
+	node.read(cursor.pid,pf);
+	//printf("Have Node of size %d\n",node.getKeyCount());
+	node.printNode();
+	if (node.getKeyCount() == node.MAX_NODE_SIZE){
+		int siblingKey;
+		BTLeafNode sibling;
+		sibling.read(pf.endPid(), pf);
+
+		node.insertAndSplit(key, rid, sibling, siblingKey);
+
+		node.write(node.getPageId(), pf);
+		sibling.write(sibling.getPageId(), pf);
+
+		printf("Split Happens\n");
+		printf("Node on page:%d...", node.getPageId());
+		node.printNode();
+		printf("\n");
+		printf("Sibling on page:%d...", sibling.getPageId());
+		sibling.printNode();
+		printf("\n");
+
+		BTNonLeafNode parent;
+		if (treeHeight == 1){
+			parent.read(pf.endPid(), pf);
+			parent.initializeRoot(node.getPageId(), siblingKey, sibling.getPageId());
+
+			printf("Parent on page:%d...", parent.getPageId());
+			parent.printNode();
+
+			setTreeHeight(treeHeight + 1);
+			setRootPage(parent.getPageId());
+			parent.write(parent.getPageId(), pf);
+
+			node.setParent(parent.getPageId());
+			node.write(node.getPageId(), pf);
+
+			sibling.setParent(parent.getPageId());
+			sibling.write(sibling.getPageId(), pf);
+			
+		}
+		else {
+			// int currentHeight = treeHeight - 1;
+			// PageId parentPage = node.getParent();
+			// sibling.setParent(parentPage);
+			// PageId pageT
+			
+			// while (){
+			// 	parent.read(parentPage, pf);
+			// 	if (parent.getKeyCount() == node.MAX_NODE_SIZE){
+			// 		parent.insertAndSplit(siblinkgKey, sibling.getPageId())
+			// 	}
+			// 	else {
+			// 		parent.insert(siblingKey,sibling.getPageId());
+			// 		break;
+			// 	}
+			// }
+		}
+	}
+	else {
+		node.insert(key,rid);
+		node.write(node.getPageId(),pf);
+	}
     return 0;
 }
+
+// PageId insertUp(int key, PageId pid, int currHeight){
+
+// 	BTNonLeafNode nl;
+// 	nl.read(parentPage, pf);
+
+// }
+
 
 /**
  * Run the standard B+Tree key search algorithm and identify the
@@ -119,13 +220,14 @@ RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
 }
 
 BTLeafNode BTreeIndex::traverse(int searchKey, PageId pid, int currHeight){
-	if (currHeight == 0){
+	if (currHeight == 1){
 		BTLeafNode found;
 		found.read(pid,pf);
 		return found;
 	}
 	BTNonLeafNode nl;
 	nl.read(pid, pf);
+	nl.printNode();
 	nl.locateChildPtr(searchKey, pid);
 	return traverse(searchKey, pid, currHeight - 1);
 }

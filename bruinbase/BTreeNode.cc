@@ -47,7 +47,7 @@ BTLeafNode::LeafNodeEntry* BTLeafNode::getFirstEntry(){
 
 BTLeafNode::LeafNodeEntry* BTLeafNode::getLastEntry(){
 	char* startAddr = buffer + sizeof(NodeHead);
-	if (keyCount > 0) startAddr += keyCount  * (sizeof(LeafNodeEntry));
+	if (keyCount > 0) startAddr += keyCount * (sizeof(LeafNodeEntry));
 	return reinterpret_cast<LeafNodeEntry *>(startAddr);
 }
 
@@ -296,6 +296,12 @@ BTNonLeafNode::NonLeafNodeEntry* BTNonLeafNode::getMiddleEntry(){
 	return reinterpret_cast<NonLeafNodeEntry *>(startAddr);
 }
 
+BTNonLeafNode::NonLeafNodeEntry* BTNonLeafNode::getLastEntry(){
+	char* startAddr = buffer + sizeof(NodeHead);
+	if (keyCount > 0) startAddr += keyCount  * (sizeof(NonLeafNodeEntry));
+	return reinterpret_cast<NonLeafNodeEntry *>(startAddr);
+}
+
 void BTNonLeafNode::setParent(PageId parentPage){
 	NodeHead *nh = getHead();
 	nh->parentPage = parentPage;
@@ -310,6 +316,7 @@ RC BTNonLeafNode::read(PageId pid, const PageFile& pf)
 { 
 	RC errcode;
 	errcode = pf.read(pid, buffer);
+	pageId = pid;
 	NodeHead *nh = getHead();
 	NodeTail *nt = getTail();
 	if (nh->size == nt->size) setKeyCount(nh->size);
@@ -408,8 +415,7 @@ RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
 	RC errcode;
 	NonLeafNodeEntry* currentEntry = getFirstEntry();
 	for (int i = 0; i < keyCount; i++){
-		if (searchKey < currentEntry->key){
-			printf("Found greater key\n");
+		if (searchKey < currentEntry->key || currentEntry->key == NO_KEY){
 			pid = currentEntry->pageId;
 			return 0;
 		}
@@ -431,10 +437,10 @@ RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
  */
 RC BTNonLeafNode::initializeRoot(PageId pid1, int key, PageId pid2)
 { 
-	PageFile pf;
-	BTNonLeafNode root;
-	root.insert(key, pid1);
-	root.insert(NO_KEY,pid2);
-
+	insert(key, pid1);
+	NonLeafNodeEntry *lastEntry = getLastEntry();
+	lastEntry->pageId = pid2;
+	lastEntry->key = NO_KEY;
+	setKeyCount(keyCount + 1);
 	return 0; 
 }
