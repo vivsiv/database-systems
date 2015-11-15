@@ -62,6 +62,11 @@ void BTLeafNode::setParent(PageId parentPage){
 	nh->parentPage = parentPage;
 }
 
+PageId BTLeafNode::getParent(){
+	NodeHead *nh = getHead();
+	return nh->parentPage;
+}
+
 RC BTLeafNode::read(PageId pid, const PageFile& pf)
 {
 	RC errcode;
@@ -294,6 +299,11 @@ BTNonLeafNode::NonLeafNodeEntry* BTNonLeafNode::getMiddleEntry(){
 void BTNonLeafNode::setParent(PageId parentPage){
 	NodeHead *nh = getHead();
 	nh->parentPage = parentPage;
+}
+
+PageId BTNonLeafNode::getParent(){
+	NodeHead *nh = getHead();
+	return nh->parentPage;
 }
 
 RC BTNonLeafNode::read(PageId pid, const PageFile& pf)
