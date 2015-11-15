@@ -137,10 +137,11 @@ class BTLeafNode {
     NodeTail* getTail();
 
 
-
     LeafNodeEntry* getFirstEntry();
     LeafNodeEntry* getLastEntry();
     LeafNodeEntry* getMiddleEntry();
+
+    void setParent(PageId parentPage);
 
     void initialize(int numKeys, int prev, const char* cpyStart);
 }; 
@@ -219,6 +220,8 @@ class BTNonLeafNode {
     void printNode();
 
     int getPageId();
+
+    void setParent(PageId parentPage);
 
   private:
    /**

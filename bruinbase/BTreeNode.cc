@@ -57,6 +57,11 @@ BTLeafNode::LeafNodeEntry* BTLeafNode::getMiddleEntry(){
 	return reinterpret_cast<LeafNodeEntry *>(startAddr);
 }
 
+void BTLeafNode::setParent(PageId parentPage){
+	NodeHead *nh = getHead();
+	nh->parentPage = parentPage;
+}
+
 RC BTLeafNode::read(PageId pid, const PageFile& pf)
 {
 	RC errcode;
@@ -284,6 +289,11 @@ BTNonLeafNode::NonLeafNodeEntry* BTNonLeafNode::getMiddleEntry(){
 	int middle = (keyCount / 2);
 	char* startAddr = buffer + sizeof(NodeHead) + (middle * (sizeof(NonLeafNodeEntry)));
 	return reinterpret_cast<NonLeafNodeEntry *>(startAddr);
+}
+
+void BTNonLeafNode::setParent(PageId parentPage){
+	NodeHead *nh = getHead();
+	nh->parentPage = parentPage;
 }
 
 RC BTNonLeafNode::read(PageId pid, const PageFile& pf)
