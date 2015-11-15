@@ -11,7 +11,7 @@ using namespace std;
 void BTLeafNode::printNode(){
 	printf("Printing Node of Size: %d\n", keyCount);
 	LeafNodeEntry *currentEntry = getFirstEntry();
-	printf("%p)", (void *)currentEntry);
+	printf("%p)Parent:%d||", (void *)currentEntry, getParent());
 	for (int i=0; i < keyCount; i++){
 		printf("key:%d,pid:%d,sid:%d|", currentEntry->key, (currentEntry->recordId).pid, (currentEntry->recordId).sid);
 		currentEntry++;
@@ -250,7 +250,7 @@ RC BTLeafNode::setNextNodePtr(PageId pid)
 void BTNonLeafNode::printNode(){
 	printf("Printing Node of Size: %d\n", keyCount);
 	NonLeafNodeEntry *currentEntry = getFirstEntry();
-	printf("%p)", (void *)currentEntry);
+	printf("%p)Parent:%d||", (void *)currentEntry, getParent());
 	for (int i=0; i < keyCount; i++){
 		printf("pid:%d|key:%d|", currentEntry->pageId, currentEntry->key);
 		currentEntry++;
@@ -442,5 +442,6 @@ RC BTNonLeafNode::initializeRoot(PageId pid1, int key, PageId pid2)
 	lastEntry->pageId = pid2;
 	lastEntry->key = NO_KEY;
 	setKeyCount(keyCount + 1);
+	setParent(NO_PARENT);
 	return 0; 
 }

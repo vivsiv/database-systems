@@ -29,22 +29,6 @@ void BTreeIndex::printTree(){
 	root.printNode();
 	// PageId child1 page;
 	// BTLeafNode child1 = root.locateChildPtr();
-
-
-
-	// int currLevel;
-	// queue<int> q;
-	// q.push(rootPid);
-	// while (!q.empty()){
-	// 	int curr = q.front();
-	// 	q.pop();
-	// 	BTLeafNode ln;
-	// 	ln.read()
-	// 	ln.read(pid)
-	
-	// 	q.push()
-	// }
-	// if (level > treeHeight) return;
 }
 
 BTreeIndex::rootPageHeader* BTreeIndex::getRootHeader(){
@@ -85,6 +69,7 @@ RC BTreeIndex::open(const string& indexname, char mode)
 	status = pf.read(INDEX_INFO,buffer);
 	printf("End pid is %d\n", pf.endPid());
 	if (pf.endPid() == INDEX_INFO){
+
 		rootPid = 1;
 		treeHeight = 1;
 	}
@@ -132,25 +117,14 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 		node.write(node.getPageId(), pf);
 		sibling.write(sibling.getPageId(), pf);
 
-		printf("Split Happens\n");
-		printf("Node on page:%d...", node.getPageId());
-		node.printNode();
-		printf("\n");
-		printf("Sibling on page:%d...", sibling.getPageId());
-		sibling.printNode();
-		printf("\n");
-
 		BTNonLeafNode parent;
 		if (treeHeight == 1){
 			parent.read(pf.endPid(), pf);
 			parent.initializeRoot(node.getPageId(), siblingKey, sibling.getPageId());
-
-			printf("Parent on page:%d...", parent.getPageId());
-			parent.printNode();
+			parent.write(parent.getPageId(), pf);
 
 			setTreeHeight(treeHeight + 1);
 			setRootPage(parent.getPageId());
-			parent.write(parent.getPageId(), pf);
 
 			node.setParent(parent.getPageId());
 			node.write(node.getPageId(), pf);
@@ -158,6 +132,17 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 			sibling.setParent(parent.getPageId());
 			sibling.write(sibling.getPageId(), pf);
 			
+
+			printf("Split Happens\n");
+			printf("Parent on page:%d...", parent.getPageId());
+			parent.printNode();
+			printf("\n");
+			printf("Child1 on page:%d...", node.getPageId());
+			node.printNode();
+			printf("\n");
+			printf("Child2 on page:%d...", sibling.getPageId());
+			sibling.printNode();
+			printf("\n");
 		}
 		else {
 			// int currentHeight = treeHeight - 1;
@@ -179,6 +164,7 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 	}
 	else {
 		node.insert(key,rid);
+		if (treeHeight == 1) node.setParent(BTLeafNode::NO_PARENT);
 		node.write(node.getPageId(),pf);
 	}
     return 0;
