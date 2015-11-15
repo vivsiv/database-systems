@@ -18,6 +18,7 @@
  */
 class BTLeafNode {
   public:
+    const static int MAX_NODE_SIZE = 70;
    /**
     * Insert the (key, rid) pair to the node.
     * Remember that all keys inside a B+tree node should be kept sorted.
@@ -100,6 +101,8 @@ class BTLeafNode {
 
     void printNode();
 
+    int getPageId();
+
   private:
    /**
     * The main memory buffer for loading the content of the disk page 
@@ -122,6 +125,7 @@ class BTLeafNode {
     typedef struct {
         int prevPage;
         int size;
+        PageId parentPage;
     } NodeHead;
 
     typedef struct {
@@ -147,6 +151,7 @@ class BTLeafNode {
  */
 class BTNonLeafNode {
   public:
+    const static int MAX_NODE_SIZE = 70;
    /**
     * Insert a (key, pid) pair to the node.
     * Remember that all keys inside a B+tree node should be kept sorted.
@@ -213,6 +218,8 @@ class BTNonLeafNode {
 
     void printNode();
 
+    int getPageId();
+
   private:
    /**
     * The main memory buffer for loading the content of the disk page 
@@ -232,6 +239,18 @@ class BTNonLeafNode {
       // The key of the record
       int  key;  
     } NonLeafNodeEntry;
+
+    typedef struct {
+        int size;
+        PageId parentPage;
+    } NodeHead;
+
+    typedef struct {
+        int size;
+    } NodeTail;
+
+    NodeHead* getHead();
+    NodeTail* getTail();
 
     NonLeafNodeEntry* getFirstEntry();
     NonLeafNodeEntry* getMiddleEntry();

@@ -11,12 +11,16 @@ using namespace std;
 void BTLeafNode::printNode(){
 	printf("Printing Node of Size: %d\n", keyCount);
 	LeafNodeEntry *currentEntry = getFirstEntry();
+	printf("%p)", (void *)currentEntry);
 	for (int i=0; i < keyCount; i++){
-		printf("Printing entry at addr %p\n", (void *)currentEntry);
-		printf("Entry, key: %d pageId:%d slotId: %d\n", currentEntry->key, (currentEntry->recordId).pid, (currentEntry->recordId).sid);
+		printf("key:%d,pid:%d,sid:%d|", currentEntry->key, (currentEntry->recordId).pid, (currentEntry->recordId).sid);
 		currentEntry++;
 	}
 	printf("\n");
+}
+
+int BTLeafNode::getPageId(){
+	return pageId;
 }
 
 BTLeafNode::NodeHead* BTLeafNode::getHead(){
@@ -236,12 +240,25 @@ RC BTLeafNode::setNextNodePtr(PageId pid)
 void BTNonLeafNode::printNode(){
 	printf("Printing Node of Size: %d\n", keyCount);
 	NonLeafNodeEntry *currentEntry = getFirstEntry();
+	printf("%p)", (void *)currentEntry);
 	for (int i=0; i < keyCount; i++){
-		printf("Printing entry at addr %p\n", (void *)currentEntry);
-		printf("Entry, pageId:%d keyId:%d\n", currentEntry->pageId, currentEntry->key);
+		printf("pid:%d|key:%d|", currentEntry->pageId, currentEntry->key);
 		currentEntry++;
 	}
 	printf("\n");	
+}
+
+int BTNonLeafNode::getPageId(){
+	return pageId;
+}
+
+BTNonLeafNode::NodeHead* BTNonLeafNode::getHead(){
+	return reinterpret_cast<NodeHead*>(buffer);
+}
+
+BTNonLeafNode::NodeTail* BTNonLeafNode::getTail(){
+	char* tailAddr = buffer + PageFile::PAGE_SIZE - sizeof(NodeTail);
+	return reinterpret_cast<NodeTail*>(tailAddr);
 }
 
 int BTNonLeafNode::checkSize(){
@@ -252,30 +269,30 @@ int BTNonLeafNode::checkSize(){
 
 void BTNonLeafNode::setKeyCount(int k){
 	keyCount = k;
-	int *firstSize = reinterpret_cast<int*>(buffer);
-	*firstSize = k;
-	int *lastSize = reinterpret_cast<int*>(buffer + PageFile::PAGE_SIZE - sizeof(int));
-	*lastSize = k;
+	NodeHead *nh = getHead();
+	nh->size = k;
+	NodeTail *nt = getTail();
+	nt->size = k;
 }
 
 BTNonLeafNode::NonLeafNodeEntry* BTNonLeafNode::getFirstEntry(){
-	char* startAddr = buffer + sizeof(int);
+	char* startAddr = buffer + sizeof(NodeHead);
 	return reinterpret_cast<NonLeafNodeEntry *>(startAddr);
 }
 
 BTNonLeafNode::NonLeafNodeEntry* BTNonLeafNode::getMiddleEntry(){
 	int middle = (keyCount / 2);
-	char* startAddr = buffer + sizeof(int) + (middle *(sizeof(NonLeafNodeEntry)));
+	char* startAddr = buffer + sizeof(NodeHead) + (middle * (sizeof(NonLeafNodeEntry)));
 	return reinterpret_cast<NonLeafNodeEntry *>(startAddr);
-
 }
 
 RC BTNonLeafNode::read(PageId pid, const PageFile& pf)
 { 
 	RC errcode;
 	errcode = pf.read(pid, buffer);
-	pageId = pid;
-	if (checkSize()) setKeyCount(*(reinterpret_cast<int*>(buffer)));
+	NodeHead *nh = getHead();
+	NodeTail *nt = getTail();
+	if (nh->size == nt->size) setKeyCount(nh->size);
 	else setKeyCount(0);
 
 	return errcode;
@@ -370,14 +387,18 @@ RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
 { 
 	RC errcode;
 	NonLeafNodeEntry* currentEntry = getFirstEntry();
-	for (int i; i < keyCount; i++){
-		if (searchKey == currentEntry->key){
+	for (int i = 0; i < keyCount; i++){
+		if (searchKey < currentEntry->key){
+			printf("Found greater key\n");
 			pid = currentEntry->pageId;
-			errcode = 0;
-			break;
+			return 0;
 		}
-		else errcode = RC_NO_SUCH_RECORD;
+		currentEntry++;
 	}
+	currentEntry++;
+	int* lastPtr = reinterpret_cast<int*>(currentEntry);
+	pid = *lastPtr;
+	errcode = 0;
 	return errcode; 
 }
 
