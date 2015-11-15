@@ -9,6 +9,8 @@
  
 #include "BTreeIndex.h"
 #include "BTreeNode.h"
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -20,6 +22,28 @@ BTreeIndex::BTreeIndex()
     rootPid = -1;
 }
 
+void printTree(){
+	// int currLevel;
+	// queue<int> q;
+	// q.push(rootPid);
+	// while (!q.empty()){
+	// 	int curr = q.front();
+	// 	q.pop();
+	// 	BTLeafNode ln;
+	// 	ln.read()
+	// 	ln.read(pid)
+	
+	// 	q.push()
+	// }
+	// if (level > treeHeight) return;
+}
+
+void BTreeIndex::initRoot(){
+	rootPageHeader* rpHeader = reinterpret_cast<rootPageHeader*>(buffer);
+	rootPid = rpHeader->rPid;
+	treeHeight = rpHeader->height;
+}
+
 /*
  * Open the index file in read or write mode.
  * Under 'w' mode, the index file should be created if it does not exist.
@@ -29,7 +53,20 @@ BTreeIndex::BTreeIndex()
  */
 RC BTreeIndex::open(const string& indexname, char mode)
 {
-    return 0;
+	RC status;
+	const string ifilename = indexname + ".idx";
+
+	status = pf.open(ifilename, 'w');
+	status = pf.read(INDEX_INFO,buffer);
+	if (pf.endPid() == INDEX_INFO){
+		rootPid = 1;
+		treeHeight = 0;
+	}
+	else {
+		initRoot();
+	}
+	status = pf.read(rootPid, buffer);
+    return status;
 }
 
 /*
@@ -38,7 +75,9 @@ RC BTreeIndex::open(const string& indexname, char mode)
  */
 RC BTreeIndex::close()
 {
-    return 0;
+	RC status;
+	status = pf.close();
+    return status;
 }
 
 /*
@@ -72,7 +111,23 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
  */
 RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
 {
-    return 0;
+	RC errcode;
+	BTLeafNode found = traverse(searchKey, rootPid, treeHeight);
+	cursor.pid = found.getPageId();
+	errcode = found.locate(searchKey, cursor.eid);
+    return errcode;
+}
+
+BTLeafNode BTreeIndex::traverse(int searchKey, PageId pid, int currHeight){
+	if (currHeight == 0){
+		BTLeafNode found;
+		found.read(pid,pf);
+		return found;
+	}
+	BTNonLeafNode nl;
+	nl.read(pid, pf);
+	nl.locateChildPtr(searchKey, pid);
+	return traverse(searchKey, pid, currHeight - 1);
 }
 
 /*
