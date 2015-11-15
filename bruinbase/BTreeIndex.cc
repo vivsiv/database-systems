@@ -39,18 +39,21 @@ void BTreeIndex::initRoot(){
 	rootPageHeader* rpHeader = getRootHeader();
 	rootPid = rpHeader->rPid;
 	treeHeight = rpHeader->height;
+	printf("Found root:%d and height:%d in index info page\n", rootPid, treeHeight);
 }
 
 void BTreeIndex::setTreeHeight(int height){
 	treeHeight = height;
 	rootPageHeader* rpHeader = getRootHeader();
 	rpHeader->height = height;
+	pf.write(INDEX_INFO,buffer);
 }
 
 void BTreeIndex::setRootPage(PageId rootPage){
 	rootPid = rootPage;
 	rootPageHeader* rpHeader = getRootHeader();
 	rpHeader->rPid = rootPage;
+	pf.write(INDEX_INFO,buffer);
 }
 
 /*
@@ -65,15 +68,16 @@ RC BTreeIndex::open(const string& indexname, char mode)
 	RC status;
 	const string ifilename = indexname + ".idx";
 
-	status = pf.open(ifilename, 'w');
+	status = pf.open(ifilename, mode);
 	status = pf.read(INDEX_INFO,buffer);
 	printf("End pid is %d\n", pf.endPid());
 	if (pf.endPid() == INDEX_INFO){
-
+		printf("No Root\n");
 		rootPid = 1;
 		treeHeight = 1;
 	}
 	else {
+		printf("We Have a root\n");
 		initRoot();
 	}
 	status = pf.read(rootPid, buffer);
@@ -213,7 +217,7 @@ BTLeafNode BTreeIndex::traverse(int searchKey, PageId pid, int currHeight){
 	}
 	BTNonLeafNode nl;
 	nl.read(pid, pf);
-	nl.printNode();
+	//nl.printNode();
 	nl.locateChildPtr(searchKey, pid);
 	return traverse(searchKey, pid, currHeight - 1);
 }
