@@ -104,38 +104,151 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 	RC errcode;
 	IndexCursor cursor;
 	locate(key, cursor);
-	printf("Located Node, page:%d\n", cursor.pid);
 	BTLeafNode node;
 	node.read(cursor.pid,pf);
 	//printf("Have Node of size %d\n",node.getKeyCount());
+	printf("Node Before Insert (page:%d)..\n", cursor.pid);
 	node.printNode();
+	printf("\n");
 	if (node.getKeyCount() == node.MAX_NODE_SIZE){
 		int siblingKey;
 		BTLeafNode sibling;
 		sibling.read(pf.endPid(), pf);
 
+		printf("Leaf Split Happens\n");
 		node.insertAndSplit(key, rid, sibling, siblingKey);
 
 		node.write(node.getPageId(), pf);
 		sibling.write(sibling.getPageId(), pf);
+		
+		propagateLeaf(siblingKey, node.getParent(), node, sibling, treeHeight);
 
-		BTNonLeafNode parent;
-		if (treeHeight == 1){
-			parent.read(pf.endPid(), pf);
-			parent.initializeRoot(node.getPageId(), siblingKey, sibling.getPageId());
-			parent.write(parent.getPageId(), pf);
+		// BTNonLeafNode parent;
+		// if (treeHeight == 1){
+		// 	parent.read(pf.endPid(), pf);
+		// 	parent.initializeRoot(node.getPageId(), siblingKey, sibling.getPageId());
+		// 	parent.write(parent.getPageId(), pf);
 
-			setTreeHeight(treeHeight + 1);
-			setRootPage(parent.getPageId());
+		// 	setTreeHeight(treeHeight + 1);
+		// 	setRootPage(parent.getPageId());
 
-			node.setParent(parent.getPageId());
-			node.write(node.getPageId(), pf);
+		// 	node.setParent(parent.getPageId());
+		// 	node.write(node.getPageId(), pf);
 
-			sibling.setParent(parent.getPageId());
-			sibling.write(sibling.getPageId(), pf);
+		// 	sibling.setParent(parent.getPageId());
+		// 	sibling.write(sibling.getPageId(), pf);
 			
 
-			printf("Split Happens\n");
+		// 	printf("Split Happens\n");
+		// 	printf("Parent on page:%d...", parent.getPageId());
+		// 	parent.printNode();
+		// 	printf("\n");
+		// 	printf("Child1 on page:%d...", node.getPageId());
+		// 	node.printNode();
+		// 	printf("\n");
+		// 	printf("Child2 on page:%d...", sibling.getPageId());
+		// 	sibling.printNode();
+		// 	printf("\n");
+		// }
+		// else {
+		// 	int currentHeight = treeHeight - 1;
+		// 	PageId parentPage = node.getParent();
+		// 	sibling.setParent(parentPage);
+		// 	sibling.write(sibling.getPageId(), pf);
+		// 	while (currentHeight > 0){
+		// 		parent.read(parentPage, pf);
+		// 		if (parent.getKeyCount() == node.MAX_NODE_SIZE){
+		// 			parent.insertAndSplit(siblinkgKey, sibling.getPageId())
+		// 		}
+		// 		else {
+		// 			parent.insert(siblingKey,sibling.getPageId());
+		// 			break;
+		// 		}
+		// 	}
+		// }
+	}
+	else {
+		node.insert(key,rid);
+		if (treeHeight == 1) node.setParent(BTLeafNode::NO_PARENT);
+		node.write(node.getPageId(),pf);
+		printf("Inserted Leaf Node at (page:%d)\n", node.getPageId());
+		node.printNode();
+	}
+    return 0;
+}
+
+void setLeafParents(BTNonLeafNode& parent){
+	BTLeafNode child;
+
+}
+
+void BTreeIndex::propagateLeaf(int key, PageId parentPage, BTLeafNode& node, BTLeafNode& sibling, int currHeight){
+	BTNonLeafNode parent;
+	if (parentPage == BTLeafNode::NO_PARENT){
+		parent.read(pf.endPid(), pf);
+		parent.initializeRoot(node.getPageId(), key, sibling.getPageId());
+		parent.write(parent.getPageId(), pf);
+
+		setTreeHeight(treeHeight + 1);
+		setRootPage(parent.getPageId());
+
+		node.setParent(parent.getPageId());
+		node.write(node.getPageId(), pf);
+
+		sibling.setParent(parent.getPageId());
+		sibling.write(sibling.getPageId(), pf);
+
+		printf("Parent on page:%d...", parent.getPageId());
+		parent.printNode();
+		printf("\n");
+		printf("Child1 on page:%d...", node.getPageId());
+		node.printNode();
+		printf("\n");
+		printf("Child2 on page:%d...", sibling.getPageId());
+		sibling.printNode();
+		printf("\n");
+		return;
+	}
+	else {
+		parent.read(parentPage, pf);
+		printf("Parent keys: %d\n", parent.getKeyCount());
+		if (parent.getKeyCount() == parent.MAX_NODE_SIZE){
+			BTNonLeafNode parentSibling;
+			parentSibling.read(pf.endPid(), pf);
+			int parentMidKey;
+
+			printf("Non Leaf Split Happens\n");
+			parent.insertAndSplit(key, sibling.getPageId(), parentSibling, parentMidKey);
+
+			parent.write(parent.getPageId(), pf);
+			parentSibling.write(parentSibling.getPageId(), pf);
+			
+			parentSibling.setLeafChildParent(pf);
+			//sibling.getPageId() == parent.getLastPointer() ? sibling.setParent(parent.getPageId()) : sibling.setParent(parentSibling.getPageId());
+			//sibling.write(sibling.getPageId(), pf);
+			//set last parent pointers
+
+			printf("Leaf parents were split\n");
+			// printf("Parent on page:%d...", parent.getPageId());
+			// parent.printNode();
+			// printf("\n");
+			// printf("Parent Sibling on page:%d...", parentSibling.getPageId());
+			// parentSibling.printNode();
+			// printf("\n");
+			printf("Child1 on page:%d...", node.getPageId());
+			node.printNode();
+			printf("\n");
+			printf("Child2 on page:%d...", sibling.getPageId());
+			sibling.printNode();
+			printf("\n");
+			return propagateNonLeaf(parentMidKey, parent.getParent(), parent, parentSibling, currHeight - 1);
+		}
+		else {
+			parent.insert(key, sibling.getPageId());
+			parent.write(parent.getPageId(), pf);
+			sibling.setParent(parent.getPageId());
+			sibling.write(sibling.getPageId(),pf);
+
 			printf("Parent on page:%d...", parent.getPageId());
 			parent.printNode();
 			printf("\n");
@@ -145,39 +258,90 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 			printf("Child2 on page:%d...", sibling.getPageId());
 			sibling.printNode();
 			printf("\n");
-		}
-		else {
-			// int currentHeight = treeHeight - 1;
-			// PageId parentPage = node.getParent();
-			// sibling.setParent(parentPage);
-			// PageId pageT
-			
-			// while (){
-			// 	parent.read(parentPage, pf);
-			// 	if (parent.getKeyCount() == node.MAX_NODE_SIZE){
-			// 		parent.insertAndSplit(siblinkgKey, sibling.getPageId())
-			// 	}
-			// 	else {
-			// 		parent.insert(siblingKey,sibling.getPageId());
-			// 		break;
-			// 	}
-			// }
+			return;
 		}
 	}
-	else {
-		node.insert(key,rid);
-		if (treeHeight == 1) node.setParent(BTLeafNode::NO_PARENT);
-		node.write(node.getPageId(),pf);
-	}
-    return 0;
 }
 
-// PageId insertUp(int key, PageId pid, int currHeight){
+void BTreeIndex::propagateNonLeaf(int key, PageId parentPage, BTNonLeafNode& node, BTNonLeafNode& sibling, int currHeight){
+	BTNonLeafNode parent;
+	if (parentPage == BTNonLeafNode::NO_PARENT){
+		printf("New parent page:%d\n", pf.endPid());
+		parent.read(pf.endPid(), pf);
+		parent.initializeRoot(node.getPageId(), key, sibling.getPageId());
+		parent.write(parent.getPageId(), pf);
 
-// 	BTNonLeafNode nl;
-// 	nl.read(parentPage, pf);
+		setTreeHeight(treeHeight + 1);
+		setRootPage(parent.getPageId());
 
-// }
+		node.setParent(parent.getPageId());
+		node.write(node.getPageId(), pf);
+
+		sibling.setParent(parent.getPageId());
+		sibling.write(sibling.getPageId(), pf);
+
+		printf("Parent on page:%d...", parent.getPageId());
+		parent.printNode();
+		printf("\n");
+		printf("Child1 on page:%d...", node.getPageId());
+		node.printNode();
+		printf("\n");
+		printf("Child2 on page:%d...", sibling.getPageId());
+		sibling.printNode();
+		printf("\n");
+		return;
+	}
+	else {
+		parent.read(parentPage, pf);
+		if (parent.getKeyCount() == parent.MAX_NODE_SIZE){
+			BTNonLeafNode parentSibling;
+			parentSibling.read(pf.endPid(), pf);
+			int parentMidKey;
+
+			printf("Non Leaf Split Happens\n");
+			parent.insertAndSplit(key, sibling.getPageId(), parentSibling, parentMidKey);
+			parent.write(parent.getPageId(), pf);
+			parentSibling.write(parentSibling.getPageId(), pf);
+			
+			parentSibling.setNonLeafChildParent(pf);
+			//sibling.getPageId() == parent.getLastPointer() ? sibling.setParent(parent.getPageId()) : sibling.setParent(parentSibling.getPageId());
+			//sibling.write(sibling.getPageId(), pf);
+
+			printf("Parents getting split\n");
+			// printf("Parent on page:%d...", parent.getPageId());
+			// parent.printNode();
+			// printf("\n");
+			// printf("Parent Sibling on page:%d...", parentSibling.getPageId());
+			// parentSibling.printNode();
+			// printf("\n");
+			printf("Child1 on page:%d...", node.getPageId());
+			node.printNode();
+			printf("\n");
+			printf("Child2 on page:%d...", sibling.getPageId());
+			sibling.printNode();
+			printf("\n");
+			//set last parent pointers
+			return propagateNonLeaf(parentMidKey, parent.getParent(), parent, parentSibling, currHeight - 1);
+		}
+		else {
+			parent.insert(key, sibling.getPageId());
+			parent.write(parent.getPageId(), pf);
+			sibling.setParent(parent.getPageId());
+			sibling.write(sibling.getPageId(),pf);
+
+			printf("Parent on page:%d...", parent.getPageId());
+			parent.printNode();
+			printf("\n");
+			printf("Child1 on page:%d...", node.getPageId());
+			node.printNode();
+			printf("\n");
+			printf("Child2 on page:%d...", sibling.getPageId());
+			sibling.printNode();
+			printf("\n");
+			return;
+		}
+	}
+}
 
 
 /**

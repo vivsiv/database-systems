@@ -10,6 +10,7 @@
 #include "Bruinbase.h"
 #include "SqlEngine.h"
 #include "BTreeNode.h"
+#include "BTreeIndex.h"
 #include <cstdio>
 
 void leafTest(){
@@ -134,6 +135,20 @@ void nonTest(){
  	ln.printNode();
  	printf("\n");
 
+ 	int locate;
+ 	ln.locateChildPtr(172,locate);
+ 	printf("Locating 172: %d\n",locate);
+ 	ln.locateChildPtr(173,locate);
+ 	printf("Locating 173: %d\n",locate);
+ 	ln.locateChildPtr(488,locate);
+ 	printf("Locating 488: %d\n",locate);
+ 	ln.locateChildPtr(489,locate);
+ 	printf("Locating 489: %d\n",locate);
+ 	ln.locateChildPtr(490,locate);
+ 	printf("Locating 490: %d\n",locate);
+ 	ln.locateChildPtr(3619,locate);
+ 	printf("Locating 3619: %d\n",locate);
+
  	BTNonLeafNode sibling;
 	int midKey;
 	int siblingPid = pf.endPid();
@@ -157,15 +172,102 @@ void nonTest(){
 	sibling.printNode();
 }
 
+void indexTest(){
+	//WRITE
+	// BTreeIndex idx;
+	// idx.open("test_index", 'w');
+
+	// RecordFile rf;
+ // 	rf.open("movie.tbl",'r');
+
+	// RecordId rid;
+ // 	rid.pid = 0;
+ // 	rid.sid = 0;
+ // 	int key;
+ // 	std::string value;
+
+	// IndexCursor cursor;
+
+ // 	for (int i=0; i < 5; i++){
+ // 		rid.sid = i;
+ // 		rf.read(rid,key,value);
+	//  	printf("Got record key:%d value:%s\n", key, value.c_str());
+	//  	idx.insert(key,rid);
+	//  	idx.locate(key,cursor);
+	//  	printf("Located key:%d. page:%d eid:%d\n", key, cursor.pid, cursor.eid);
+	//  	printf("\n");
+ // 	}
+	//  idx.printTree();
+
+ // 	idx.close();
+
+
+ 	//READ
+ 	BTreeIndex idx;
+ 	IndexCursor cursor;
+ 	int key;
+	RecordId rid;
+	idx.open("test_index", 'r');
+	idx.locate(2342,cursor);
+	printf("Located key:%d. page:%d eid:%d\n", 2342, cursor.pid, cursor.eid);
+	idx.readForward(cursor,key,rid);
+	printf("Read Forward key:%d, got page:%d,slot:%d\n",key,rid.pid,rid.sid);
+
+	idx.locate(2965,cursor);
+	printf("Located key:%d. page:%d eid:%d\n", 2965, cursor.pid, cursor.eid);
+	idx.readForward(cursor,key,rid);
+	printf("Read Forward key:%d, got page:%d,slot:%d\n",key,rid.pid,rid.sid);
+	idx.close();
+
+ }
+
+ void indexTest2(){
+ 		//WRITE
+	BTreeIndex idx;
+	idx.open("test_index2", 'w');
+
+	RecordFile rf;
+ 	rf.open("movie.tbl",'r');
+
+	RecordId rid;
+ 	rid.pid = 0;
+ 	rid.sid = 0;
+ 	int key;
+ 	std::string value;
+
+	IndexCursor cursor;
+
+	int slotId;
+ 	for (int i=0; i < 14; i++){
+ 		if (i == 9) {
+ 			rid.pid += 1;
+ 			slotId = 0;
+ 		}
+ 		rid.sid = slotId;
+ 		rf.read(rid,key,value);
+	 	printf("Inserting Record (key:%d|page:%d|slot:%d|value:%s)...\n", key, rid.pid, rid.sid, value.c_str());
+	 	idx.insert(key,rid);
+	 	printf("\n");
+	 	idx.locate(key,cursor);
+	 	printf("Located key:%d. page:%d eid:%d\n", key, cursor.pid, cursor.eid);
+	 	printf("----------------------\n");
+	 	 slotId++;
+ 	}
+
+ 	idx.close();
+ }
+
 
 int main()
 {
-  // run the SQL engine taking user commands from standard input (console).
-  //SqlEngine::run(stdin);
+  	// run the SQL engine taking user commands from standard input (console).
+  	//SqlEngine::run(stdin);
 
  	
- //leafTest();
-	nonTest();
+ 	//leafTest();
+	//nonTest();
+	//indexTest();
+	indexTest2();
 
 
   	return 0;

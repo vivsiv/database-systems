@@ -134,12 +134,13 @@ RC BTLeafNode::insert(int key, const RecordId& rid)
  * @return 0 if successful. Return an error code if there is an error.
  */
 
-void BTLeafNode::initialize(int numKeys, int prev, const char* cpyStart){
+void BTLeafNode::initialize(int numKeys, int prev, PageId parentPage, const char* cpyStart){
 	LeafNodeEntry* firstEntry = getFirstEntry();
 	memcpy(firstEntry, cpyStart, numKeys * sizeof(LeafNodeEntry));
 	setKeyCount(numKeys);
 	NodeHead *nh = getHead();
 	nh->prevPage = prev;
+	nh->parentPage = parentPage;
 }
 
 RC BTLeafNode::insertAndSplit(int key, const RecordId& rid, 
@@ -151,7 +152,7 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
 	int leftSize = keyCount - (keyCount/2);
 	int rightSize = keyCount/2;
 
-	sibling.initialize(rightSize, pageId, reinterpret_cast<char*>(splitPoint));
+	sibling.initialize(rightSize, pageId, getParent(), reinterpret_cast<char*>(splitPoint));
 	siblingKey = (sibling.getFirstEntry())->key;
 
 	memset(splitPoint, 0, rightSize * sizeof(LeafNodeEntry));
@@ -255,6 +256,10 @@ void BTNonLeafNode::printNode(){
 		printf("pid:%d|key:%d|", currentEntry->pageId, currentEntry->key);
 		currentEntry++;
 	}
+	if (currentEntry->key == NO_KEY){
+		int* lastPtr = reinterpret_cast<int*>(currentEntry);
+		printf("pid:%d", *lastPtr);
+	}
 	printf("\n");	
 }
 
@@ -312,6 +317,57 @@ PageId BTNonLeafNode::getParent(){
 	return nh->parentPage;
 }
 
+PageId BTNonLeafNode::getFirstPointer(){
+	if (keyCount < 1) return -1;
+	NonLeafNodeEntry *firstEntry = getFirstEntry();
+	return firstEntry->pageId;
+}
+
+PageId BTNonLeafNode::getLastPointer(){
+	if (keyCount < 1 ) return -1;
+	NonLeafNodeEntry *lastEntry = getLastEntry();
+	return lastEntry->pageId;
+}
+
+void BTNonLeafNode::setLeafChildParent(PageFile& pf){
+	NonLeafNodeEntry* currentEntry = getFirstEntry();
+	int currentKey = 0;
+	BTLeafNode child;
+	while(currentKey < keyCount){
+		child.read(currentEntry->pageId, pf);
+		printf("Setting child:%d's parent to:%d\n", child.getPageId(), getPageId());
+		child.setParent(getPageId());
+		child.write(child.getPageId(), pf);
+		currentEntry++;
+		currentKey++;
+	}
+	if (currentEntry->key == NO_KEY){
+		child.read(currentEntry->pageId, pf);
+		printf("Setting child:%d's parent to:%d\n", child.getPageId(), getPageId());
+		child.setParent(getPageId());
+		child.write(child.getPageId(), pf);
+	}
+}
+
+void BTNonLeafNode::setNonLeafChildParent(PageFile& pf){
+	NonLeafNodeEntry* currentEntry = getFirstEntry();
+	int currentKey = 0;
+	BTNonLeafNode child;
+	while(currentKey < keyCount){
+		child.read(currentEntry->pageId, pf);
+		child.setParent(getPageId());
+		child.write(child.getPageId(), pf);
+		currentEntry++;
+		currentKey++;
+	}
+	if (currentEntry->key == NO_KEY){
+		child.read(currentEntry->pageId, pf);
+		child.setParent(getPageId());
+		child.write(child.getPageId(), pf);
+	}
+}
+
+
 RC BTNonLeafNode::read(PageId pid, const PageFile& pf)
 { 
 	RC errcode;
@@ -361,10 +417,17 @@ RC BTNonLeafNode::insert(int key, PageId pid)
 		currentKey++;
 	}
 	NonLeafNodeEntry *newEntry = currentEntry;
-	memmove(currentEntry + 1, currentEntry, (keyCount - currentKey) * sizeof(NonLeafNodeEntry));
+	size_t bytes_moved = ((keyCount - currentKey + 1) * sizeof(NonLeafNodeEntry));
+	memmove(currentEntry + 1, currentEntry, bytes_moved);
 	newEntry->pageId = pid;
 	newEntry->key = key;
 	setKeyCount(keyCount + 1);
+	if (keyCount > 1){
+		int tmp = newEntry->pageId;
+		int* nextPtr = reinterpret_cast<int*>(currentEntry + 1);
+		newEntry->pageId = *nextPtr;
+		*nextPtr = tmp;
+	}
 	return 0; 
 }
 
@@ -379,10 +442,15 @@ RC BTNonLeafNode::insert(int key, PageId pid)
  * @return 0 if successful. Return an error code if there is an error.
  */
 
-void BTNonLeafNode::initialize(int numKeys, const char* cpyStart){
+void BTNonLeafNode::initialize(int numKeys, PageId parentPage, const char* cpyStart){
+	NodeHead* nh = getHead();
+	nh->parentPage = parentPage;
+	int copiedEntries = numKeys + 1;
 	NonLeafNodeEntry* firstEntry = getFirstEntry();
-	memcpy(firstEntry, cpyStart, numKeys * sizeof(NonLeafNodeEntry));
+	memcpy(firstEntry, cpyStart, copiedEntries * sizeof(NonLeafNodeEntry));
 	setKeyCount(numKeys);
+	int *lastPtr = reinterpret_cast<int*>(firstEntry + copiedEntries);
+	*lastPtr = NO_KEY;
 }
 
 RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, int& midKey)
@@ -395,10 +463,13 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
 	int leftSize = keyCount/2;
 	int rightSize = keyCount/2 - !(keyCount % 2);
 
-	sibling.initialize(rightSize, reinterpret_cast<char*>(splitPoint));
+	sibling.initialize(rightSize, getParent(), reinterpret_cast<char*>(splitPoint));
 	
-	memset(midPoint, 0, (rightSize + 1) * sizeof(NonLeafNodeEntry));
+	char* zeroStart = reinterpret_cast<char*>(midPoint) + sizeof(int);
+	memset(zeroStart, 0, (rightSize + 1) * sizeof(NonLeafNodeEntry));
 	setKeyCount(leftSize);
+	int* lastPtr = reinterpret_cast<int*>(zeroStart);
+	*lastPtr = NO_KEY;
 
 	return 0; 
 }
@@ -421,9 +492,10 @@ RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
 		}
 		currentEntry++;
 	}
-	currentEntry++;
+	//currentEntry++;
 	int* lastPtr = reinterpret_cast<int*>(currentEntry);
 	pid = *lastPtr;
+	//printf("Located a last ptr! at page:%d\n",pid);
 	errcode = 0;
 	return errcode; 
 }
@@ -441,7 +513,7 @@ RC BTNonLeafNode::initializeRoot(PageId pid1, int key, PageId pid2)
 	NonLeafNodeEntry *lastEntry = getLastEntry();
 	lastEntry->pageId = pid2;
 	lastEntry->key = NO_KEY;
-	setKeyCount(keyCount + 1);
+	//setKeyCount(keyCount + 1);
 	setParent(NO_PARENT);
 	return 0; 
 }

@@ -114,7 +114,8 @@ class BTreeIndex {
 
   BTLeafNode traverse(int searchKey, PageId pid, int currHeight);
 
-  PageId insertUp(int key, PageId pid, int currHeight);
+  void propagateLeaf(int key, PageId parentPage, BTLeafNode& node, BTLeafNode& siblingPage, int currHeight);
+  void propagateNonLeaf(int key, PageId parent, BTNonLeafNode& node, BTNonLeafNode& sibling, int currHeight);
   /// Note that the content of the above two variables will be gone when
   /// this class is destructed. Make sure to store the values of the two 
   /// variables in disk, so that they can be reconstructed when the index

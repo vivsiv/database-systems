@@ -18,7 +18,7 @@
  */
 class BTLeafNode {
   public:
-    const static int MAX_NODE_SIZE = 4;
+    const static int MAX_NODE_SIZE = 2;
     static const int NO_PARENT = -1;
    /**
     * Insert the (key, rid) pair to the node.
@@ -145,7 +145,7 @@ class BTLeafNode {
     LeafNodeEntry* getLastEntry();
     LeafNodeEntry* getMiddleEntry();
 
-    void initialize(int numKeys, int prev, const char* cpyStart);
+    void initialize(int numKeys, int prev, int parentPage, const char* cpyStart);
 }; 
 
 
@@ -154,7 +154,7 @@ class BTLeafNode {
  */
 class BTNonLeafNode {
   public:
-    const static int MAX_NODE_SIZE = 70;
+    const static int MAX_NODE_SIZE = 2;
     static const int NO_PARENT = -1;
    /**
     * Insert a (key, pid) pair to the node.
@@ -227,6 +227,12 @@ class BTNonLeafNode {
     void setParent(PageId parentPage);
     PageId getParent();
 
+    PageId getFirstPointer();
+    PageId getLastPointer();
+
+    void setLeafChildParent(PageFile& pf);
+    void setNonLeafChildParent(PageFile& pf);
+
   private:
    /**
     * The main memory buffer for loading the content of the disk page 
@@ -263,7 +269,7 @@ class BTNonLeafNode {
     NonLeafNodeEntry* getMiddleEntry();
     NonLeafNodeEntry* getLastEntry();
 
-    void initialize(int numKeys, const char* cpyStart);
+    void initialize(int numKeys, PageId parentPage, const char* cpyStart);
 
     static const int NO_KEY = -1;
 }; 
