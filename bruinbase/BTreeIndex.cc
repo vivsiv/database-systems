@@ -438,8 +438,11 @@ RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
 	errcode = ln.readEntry(cursor.eid,key,rid);
         // if the end of the node is reached, update the cursor
 	if (errcode == RC_NO_SUCH_RECORD) {
-          cursor.eid = 1;
+          cursor.eid = 0;
           cursor.pid = ln.getNextPage();
+          ln.read(cursor.pid, pf);
+          ln.readEntry(cursor.eid,key,rid);
+          cursor.eid++;
           if (cursor.pid == RC_END_OF_TREE) return RC_END_OF_TREE;
         }
         else cursor.eid++; // advance the cursor one entry
