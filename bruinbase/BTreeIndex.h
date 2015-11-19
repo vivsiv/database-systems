@@ -45,6 +45,9 @@ class BTreeIndex {
    */
   RC open(const std::string& indexname, char mode);
 
+  // index file read for debugging/testing purposes
+  RC read(PageId pid, void *rbuffer) const;
+
   /**
    * Close the index file.
    * @return error code. 0 if no error

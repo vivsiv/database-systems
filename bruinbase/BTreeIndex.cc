@@ -11,6 +11,7 @@
 #include "BTreeNode.h"
 #include <iostream>
 #include <fstream>
+#include <climits>
 
 using namespace std;
 
@@ -39,7 +40,7 @@ void BTreeIndex::initRoot(){
 	rootPageHeader* rpHeader = getRootHeader();
 	rootPid = rpHeader->rPid;
 	treeHeight = rpHeader->height;
-	printf("Found root:%d and height:%d in index info page\n", rootPid, treeHeight);
+	//printf("Found root:%d and height:%d in index info page\n", rootPid, treeHeight);
 }
 
 void BTreeIndex::setTreeHeight(int height){
@@ -69,17 +70,41 @@ RC BTreeIndex::open(const string& indexname, char mode)
 	const string ifilename = indexname + ".idx";
 
 	status = pf.open(ifilename, mode);
-	status = pf.read(INDEX_INFO,buffer);
-	printf("End pid is %d\n", pf.endPid());
+        //fprintf(stdout, "after index file opened status = %d\n", status);
+        // moved below read into else statement below because page was attempting
+	// to be read that did not exist and pf.read returned error when index
+	// was first being created
+	//status = pf.read(INDEX_INFO,buffer);
+        //fprintf(stderr, "after index head read status = %d\n", status);
+	//printf("End pid is %d\n", pf.endPid());
 	if (pf.endPid() == INDEX_INFO){
 		rootPid = 1;
 		treeHeight = 1;
+		setTreeHeight(treeHeight);
+		setRootPage(rootPid);
 	}
 	else {
+                status = pf.read(INDEX_INFO,buffer);
+                //fprintf(stdout, "after index head read status = %d\n", status);
 		initRoot();
+		status = pf.read(rootPid, buffer);
+        	//fprintf(stdout, "after root page read status = %d\n", status);
 	}
-	status = pf.read(rootPid, buffer);
+        // moved below read into else statement above because page was attempting
+	// to be read that did not exist and pf.read returned error when index
+	// was first being created
+	//status = pf.read(rootPid, buffer);
+        //fprintf(stdout, "after root page read status = %d\n", status);
     return status;
+}
+
+// read from the index file
+// for debugging/testing purposes
+RC BTreeIndex::read(PageId pid, void* rbuffer) const
+{
+	RC status;
+	status = pf.read(pid,rbuffer);
+	return status;
 }
 
 /*
@@ -103,20 +128,29 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 {
 	RC errcode;
 	IndexCursor cursor;
-	locate(key, cursor);
+	errcode = locate(key, cursor);
 	BTLeafNode node;
 	node.read(cursor.pid,pf);
 	//printf("Have Node of size %d\n",node.getKeyCount());
-	printf("Node Before Insert (page:%d)..\n", cursor.pid);
-	node.printNode();
-	printf("\n");
+	//printf("Node Before Insert (page:%d)..\n", cursor.pid);
+	//node.printNode();
+	//printf("\n");
 	if (node.getKeyCount() == node.MAX_NODE_SIZE){
 		int siblingKey;
 		BTLeafNode sibling;
+		PageId oldNext;
 		sibling.read(pf.endPid(), pf);
 
-		printf("Leaf Split Happens\n");
+		//printf("\n\n\n");
+		//printf("Leaf Split Happens\n");
 		node.insertAndSplit(key, rid, sibling, siblingKey);
+		// set node's next pointer
+                oldNext = node.getNextPage();
+                node.setNextNodePtr(sibling.getPageId());
+                sibling.setNextNodePtr(oldNext);
+		//printf("%d->%d\n",node.getPageId(),sibling.getPageId());
+		//printf("%d->%d\n",sibling.getPageId(),oldNext);
+		//printf("\n\n\n");
 
 		node.write(node.getPageId(), pf);
 		sibling.write(sibling.getPageId(), pf);
@@ -168,11 +202,12 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 		// }
 	}
 	else {
+		if (pf.endPid() == 1) node.setNextNodePtr(RC_END_OF_TREE);
 		node.insert(key,rid);
 		if (treeHeight == 1) node.setParent(BTLeafNode::NO_PARENT);
 		node.write(node.getPageId(),pf);
-		printf("Inserted Leaf Node at (page:%d)\n", node.getPageId());
-		node.printNode();
+		//printf("Inserted Leaf Node at (page:%d)\n", node.getPageId());
+		//node.printNode();
 	}
     return 0;
 }
@@ -198,20 +233,20 @@ void BTreeIndex::propagateLeaf(int key, PageId parentPage, BTLeafNode& node, BTL
 		sibling.setParent(parent.getPageId());
 		sibling.write(sibling.getPageId(), pf);
 
-		printf("Parent on page:%d...", parent.getPageId());
-		parent.printNode();
-		printf("\n");
-		printf("Child1 on page:%d...", node.getPageId());
-		node.printNode();
-		printf("\n");
-		printf("Child2 on page:%d...", sibling.getPageId());
-		sibling.printNode();
-		printf("\n");
+		//printf("Parent on page:%d...", parent.getPageId());
+		//parent.printNode();
+		//printf("\n");
+		//printf("Child1 on page:%d...", node.getPageId());
+		//node.printNode();
+		//printf("\n");
+		//printf("Child2 on page:%d...", sibling.getPageId());
+		//sibling.printNode();
+		//printf("\n");
 		return;
 	}
 	else {
 		parent.read(parentPage, pf);
-		printf("Parent keys: %d\n", parent.getKeyCount());
+		//printf("Parent keys: %d\n", parent.getKeyCount());
 		if (parent.getKeyCount() == parent.MAX_NODE_SIZE){
 			BTNonLeafNode parentSibling;
 			parentSibling.read(pf.endPid(), pf);
@@ -235,11 +270,11 @@ void BTreeIndex::propagateLeaf(int key, PageId parentPage, BTLeafNode& node, BTL
 			// printf("Parent Sibling on page:%d...", parentSibling.getPageId());
 			// parentSibling.printNode();
 			// printf("\n");
-			printf("Child1 on page:%d...", node.getPageId());
-			node.printNode();
-			printf("\n");
-			printf("Child2 on page:%d...", sibling.getPageId());
-			sibling.printNode();
+			//printf("Child1 on page:%d...", node.getPageId());
+			//node.printNode();
+			//printf("\n");
+			//printf("Child2 on page:%d...", sibling.getPageId());
+			//sibling.printNode();
 			printf("\n");
 			return propagateNonLeaf(parentMidKey, parent.getParent(), parent, parentSibling, currHeight - 1);
 		}
@@ -249,15 +284,15 @@ void BTreeIndex::propagateLeaf(int key, PageId parentPage, BTLeafNode& node, BTL
 			sibling.setParent(parent.getPageId());
 			sibling.write(sibling.getPageId(),pf);
 
-			printf("Parent on page:%d...", parent.getPageId());
-			parent.printNode();
-			printf("\n");
-			printf("Child1 on page:%d...", node.getPageId());
-			node.printNode();
-			printf("\n");
-			printf("Child2 on page:%d...", sibling.getPageId());
-			sibling.printNode();
-			printf("\n");
+			//printf("Parent on page:%d...", parent.getPageId());
+			//parent.printNode();
+			//printf("\n");
+			//printf("Child1 on page:%d...", node.getPageId());
+			//node.printNode();
+			//printf("\n");
+			//printf("Child2 on page:%d...", sibling.getPageId());
+			//sibling.printNode();
+			//printf("\n");
 			return;
 		}
 	}
@@ -266,7 +301,7 @@ void BTreeIndex::propagateLeaf(int key, PageId parentPage, BTLeafNode& node, BTL
 void BTreeIndex::propagateNonLeaf(int key, PageId parentPage, BTNonLeafNode& node, BTNonLeafNode& sibling, int currHeight){
 	BTNonLeafNode parent;
 	if (parentPage == BTNonLeafNode::NO_PARENT){
-		printf("New parent page:%d\n", pf.endPid());
+		//printf("New parent page:%d\n", pf.endPid());
 		parent.read(pf.endPid(), pf);
 		parent.initializeRoot(node.getPageId(), key, sibling.getPageId());
 		parent.write(parent.getPageId(), pf);
@@ -280,15 +315,15 @@ void BTreeIndex::propagateNonLeaf(int key, PageId parentPage, BTNonLeafNode& nod
 		sibling.setParent(parent.getPageId());
 		sibling.write(sibling.getPageId(), pf);
 
-		printf("Parent on page:%d...", parent.getPageId());
-		parent.printNode();
-		printf("\n");
-		printf("Child1 on page:%d...", node.getPageId());
-		node.printNode();
-		printf("\n");
-		printf("Child2 on page:%d...", sibling.getPageId());
-		sibling.printNode();
-		printf("\n");
+		//printf("Parent on page:%d...", parent.getPageId());
+		//parent.printNode();
+		//printf("\n");
+		//printf("Child1 on page:%d...", node.getPageId());
+		//node.printNode();
+		//printf("\n");
+		//printf("Child2 on page:%d...", sibling.getPageId());
+		//sibling.printNode();
+		//printf("\n");
 		return;
 	}
 	else {
@@ -307,19 +342,19 @@ void BTreeIndex::propagateNonLeaf(int key, PageId parentPage, BTNonLeafNode& nod
 			//sibling.getPageId() == parent.getLastPointer() ? sibling.setParent(parent.getPageId()) : sibling.setParent(parentSibling.getPageId());
 			//sibling.write(sibling.getPageId(), pf);
 
-			printf("Parents getting split\n");
+			//printf("Parents getting split\n");
 			// printf("Parent on page:%d...", parent.getPageId());
 			// parent.printNode();
 			// printf("\n");
 			// printf("Parent Sibling on page:%d...", parentSibling.getPageId());
 			// parentSibling.printNode();
 			// printf("\n");
-			printf("Child1 on page:%d...", node.getPageId());
-			node.printNode();
-			printf("\n");
-			printf("Child2 on page:%d...", sibling.getPageId());
-			sibling.printNode();
-			printf("\n");
+			//printf("Child1 on page:%d...", node.getPageId());
+			//node.printNode();
+			//printf("\n");
+			//printf("Child2 on page:%d...", sibling.getPageId());
+			//sibling.printNode();
+			//printf("\n");
 			//set last parent pointers
 			return propagateNonLeaf(parentMidKey, parent.getParent(), parent, parentSibling, currHeight - 1);
 		}
@@ -329,15 +364,15 @@ void BTreeIndex::propagateNonLeaf(int key, PageId parentPage, BTNonLeafNode& nod
 			sibling.setParent(parent.getPageId());
 			sibling.write(sibling.getPageId(),pf);
 
-			printf("Parent on page:%d...", parent.getPageId());
-			parent.printNode();
-			printf("\n");
-			printf("Child1 on page:%d...", node.getPageId());
-			node.printNode();
-			printf("\n");
-			printf("Child2 on page:%d...", sibling.getPageId());
-			sibling.printNode();
-			printf("\n");
+			//printf("Parent on page:%d...", parent.getPageId());
+			//parent.printNode();
+			//printf("\n");
+			//printf("Child1 on page:%d...", node.getPageId());
+			//node.printNode();
+			//printf("\n");
+			//printf("Child2 on page:%d...", sibling.getPageId());
+			//sibling.printNode();
+			//printf("\n");
 			return;
 		}
 	}
@@ -378,9 +413,12 @@ BTLeafNode BTreeIndex::traverse(int searchKey, PageId pid, int currHeight){
 		return found;
 	}
 	BTNonLeafNode nl;
-	nl.read(pid, pf);
+        RC rc;
+	rc = nl.read(pid, pf);
+        if (rc != 0) fprintf(stderr, "Error: %d reading non leaf node\n",rc);
 	//nl.printNode();
-	nl.locateChildPtr(searchKey, pid);
+	rc = nl.locateChildPtr(searchKey, pid);
+        if (rc != 0) fprintf(stderr, "Error: %d locatingChildPtr in  non leaf node\n",rc);
 	return traverse(searchKey, pid, currHeight - 1);
 }
 
@@ -398,5 +436,12 @@ RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
 	BTLeafNode ln;
 	ln.read(cursor.pid, pf);
 	errcode = ln.readEntry(cursor.eid,key,rid);
+        // if the end of the node is reached, update the cursor
+	if (errcode == RC_NO_SUCH_RECORD) {
+          cursor.eid = 1;
+          cursor.pid = ln.getNextPage();
+          if (cursor.pid == RC_END_OF_TREE) return RC_END_OF_TREE;
+        }
+        else cursor.eid++; // advance the cursor one entry
     return errcode;
 }
