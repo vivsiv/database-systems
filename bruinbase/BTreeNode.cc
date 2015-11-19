@@ -9,10 +9,12 @@ using namespace std;
  * @return 0 if successful. Return an error code if there is an error.
  */
 void BTLeafNode::printNode(){
-	printf("Printing Node of Size: %d\n", keyCount);
+	// temporarily changed keyCount to size stored in NodeHead
+	NodeHead* nh = getHead();
+	printf("Printing Node of Size: %d\n", nh->size);
 	LeafNodeEntry *currentEntry = getFirstEntry();
 	printf("%p)Parent:%d||", (void *)currentEntry, getParent());
-	for (int i=0; i < keyCount; i++){
+	for (int i=0; i < nh->size; i++){
 		printf("key:%d,pid:%d,sid:%d|", currentEntry->key, (currentEntry->recordId).pid, (currentEntry->recordId).sid);
 		currentEntry++;
 	}
@@ -67,6 +69,11 @@ PageId BTLeafNode::getParent(){
 	return nh->parentPage;
 }
 
+PageId BTLeafNode::getNextPage(){
+	NodeTail *nt = getTail();
+        return nt->nextPage;
+}
+
 RC BTLeafNode::read(PageId pid, const PageFile& pf)
 {
 	RC errcode;
@@ -74,9 +81,9 @@ RC BTLeafNode::read(PageId pid, const PageFile& pf)
 	pageId = pid;
 	NodeHead *nh = getHead();
 	NodeTail *nt = getTail();
-	if (nh->size == nt->size) setKeyCount(nh->size);
+	if (errcode == RC_INVALID_PID) setKeyCount(0);
+	else if (nh->size == nt->size) setKeyCount(nh->size);
 	else setKeyCount(0);
-
 	return errcode;
 }
     
@@ -181,6 +188,7 @@ RC BTLeafNode::locate(int searchKey, int& eid)
 	errcode = 0;
 	while (keyIdx < keyCount){
 		currKey = currentEntry->key;
+                //fprintf(stdout, "Current key=%d\n", currKey);
 		if (currKey == searchKey){
 			eid = keyIdx;
 			break;
@@ -249,10 +257,12 @@ RC BTLeafNode::setNextNodePtr(PageId pid)
  * @return 0 if successful. Return an error code if there is an error.
  */
 void BTNonLeafNode::printNode(){
-	printf("Printing Node of Size: %d\n", keyCount);
+	// temporarily changed keyCount to NodeHead.size
+	NodeHead *nh = getHead();
+	printf("Printing Node of Size: %d\n", nh->size);
 	NonLeafNodeEntry *currentEntry = getFirstEntry();
 	printf("%p)Parent:%d||", (void *)currentEntry, getParent());
-	for (int i=0; i < keyCount; i++){
+	for (int i=0; i < nh->size; i++){
 		printf("pid:%d|key:%d|", currentEntry->pageId, currentEntry->key);
 		currentEntry++;
 	}
@@ -335,7 +345,7 @@ void BTNonLeafNode::setLeafChildParent(PageFile& pf){
 	BTLeafNode child;
 	while(currentKey < keyCount){
 		child.read(currentEntry->pageId, pf);
-		printf("Setting child:%d's parent to:%d\n", child.getPageId(), getPageId());
+		//printf("Setting child:%d's parent to:%d\n", child.getPageId(), getPageId());
 		child.setParent(getPageId());
 		child.write(child.getPageId(), pf);
 		currentEntry++;
@@ -343,7 +353,7 @@ void BTNonLeafNode::setLeafChildParent(PageFile& pf){
 	}
 	if (currentEntry->key == NO_KEY){
 		child.read(currentEntry->pageId, pf);
-		printf("Setting child:%d's parent to:%d\n", child.getPageId(), getPageId());
+		//printf("Setting child:%d's parent to:%d\n", child.getPageId(), getPageId());
 		child.setParent(getPageId());
 		child.write(child.getPageId(), pf);
 	}
@@ -375,9 +385,10 @@ RC BTNonLeafNode::read(PageId pid, const PageFile& pf)
 	pageId = pid;
 	NodeHead *nh = getHead();
 	NodeTail *nt = getTail();
-	if (nh->size == nt->size) setKeyCount(nh->size);
+	if (errcode == RC_INVALID_PID) setKeyCount(0);
+	else if (nh->size == nt->size) setKeyCount(nh->size);
 	else setKeyCount(0);
-
+	//printf("key count = %d\n", keyCount);
 	return errcode;
 }
     
@@ -421,6 +432,7 @@ RC BTNonLeafNode::insert(int key, PageId pid)
 	memmove(currentEntry + 1, currentEntry, bytes_moved);
 	newEntry->pageId = pid;
 	newEntry->key = key;
+	//printf("key count = %d\n", keyCount);
 	setKeyCount(keyCount + 1);
 	if (keyCount > 1){
 		int tmp = newEntry->pageId;
@@ -509,11 +521,13 @@ RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
  */
 RC BTNonLeafNode::initializeRoot(PageId pid1, int key, PageId pid2)
 { 
+	//printf("pid1=%d, key=%d, pid2=%d\n", pid1, key, pid2);
 	insert(key, pid1);
 	NonLeafNodeEntry *lastEntry = getLastEntry();
 	lastEntry->pageId = pid2;
 	lastEntry->key = NO_KEY;
 	//setKeyCount(keyCount + 1);
 	setParent(NO_PARENT);
+	//printf("key count = %d\n",keyCount);
 	return 0; 
 }

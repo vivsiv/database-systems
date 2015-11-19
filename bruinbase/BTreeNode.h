@@ -18,7 +18,7 @@
  */
 class BTLeafNode {
   public:
-    const static int MAX_NODE_SIZE = 2;
+    const static int MAX_NODE_SIZE = 70;
     static const int NO_PARENT = -1;
    /**
     * Insert the (key, rid) pair to the node.
@@ -107,6 +107,8 @@ class BTLeafNode {
     void setParent(PageId parentPage);
     PageId getParent();
 
+    PageId getNextPage();
+
   private:
    /**
     * The main memory buffer for loading the content of the disk page 
@@ -154,7 +156,7 @@ class BTLeafNode {
  */
 class BTNonLeafNode {
   public:
-    const static int MAX_NODE_SIZE = 2;
+    const static int MAX_NODE_SIZE = 70;
     static const int NO_PARENT = -1;
    /**
     * Insert a (key, pid) pair to the node.
