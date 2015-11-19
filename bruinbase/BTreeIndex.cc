@@ -84,8 +84,8 @@ RC BTreeIndex::open(const string& indexname, char mode)
 		setRootPage(rootPid);
 	}
 	else {
-                status = pf.read(INDEX_INFO,buffer);
-                //fprintf(stdout, "after index head read status = %d\n", status);
+        status = pf.read(INDEX_INFO,buffer);
+        //fprintf(stdout, "after index head read status = %d\n", status);
 		initRoot();
 		status = pf.read(rootPid, buffer);
         	//fprintf(stdout, "after root page read status = %d\n", status);
@@ -95,6 +95,7 @@ RC BTreeIndex::open(const string& indexname, char mode)
 	// was first being created
 	//status = pf.read(rootPid, buffer);
         //fprintf(stdout, "after root page read status = %d\n", status);
+	currPageId = -1;
     return status;
 }
 
@@ -433,15 +434,20 @@ BTLeafNode BTreeIndex::traverse(int searchKey, PageId pid, int currHeight){
 RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
 {
 	RC errcode;
-	BTLeafNode ln;
-	ln.read(cursor.pid, pf);
-	errcode = ln.readEntry(cursor.eid,key,rid);
+	//BTLeafNode ln;
+	
+	if (currPageId == -1) {
+		currNode.read(cursor.pid, pf);
+		currPageId = cursor.pid;
+	}
+	errcode = currNode.readEntry(cursor.eid,key,rid);
         // if the end of the node is reached, update the cursor
 	if (errcode == RC_NO_SUCH_RECORD) {
           cursor.eid = 0;
-          cursor.pid = ln.getNextPage();
-          ln.read(cursor.pid, pf);
-          ln.readEntry(cursor.eid,key,rid);
+          cursor.pid = currNode.getNextPage();
+          currNode.read(cursor.pid, pf);
+          errcode = currNode.readEntry(cursor.eid,key,rid);
+          currPageId = cursor.pid;
           cursor.eid++;
           if (cursor.pid == RC_END_OF_TREE) return RC_END_OF_TREE;
         }

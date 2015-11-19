@@ -104,6 +104,10 @@ class BTreeIndex {
 
   char buffer[PageFile::PAGE_SIZE];
 
+
+  int currPageId;
+  BTLeafNode currNode;
+
   typedef struct {
     int rPid;
     int height;
