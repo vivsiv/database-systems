@@ -236,7 +236,7 @@ void indexTest(){
  	std::string value;
 
 	IndexCursor cursor;
-
+	
 	int slotId;
  	for (int i=0; i < 14; i++){
  		if (i == 9) {
@@ -253,7 +253,24 @@ void indexTest(){
 	 	printf("----------------------\n");
 	 	 slotId++;
  	}
-
+	
+	printf("\n\n\n");
+	// READ
+	char buffer[PageFile::PAGE_SIZE];
+	BTLeafNode *leaf;
+	BTNonLeafNode *nonleaf;
+        idx.read(0,(void *)buffer);
+	printf("rootPageHeader: root PageId: %d, tree height: %d\n\n",*((int*)buffer),*(((int*)buffer)+1));
+	for (int i=1; i<17; i++) {
+		idx.read(i,(void *)buffer);
+		leaf = reinterpret_cast<BTLeafNode*>(buffer);
+		nonleaf = reinterpret_cast<BTNonLeafNode*>(buffer);
+		printf("Printing node on page %d\n", i);
+		leaf->printNode();
+		nonleaf->printNode();
+		printf("\n");
+	}
+		
  	idx.close();
  }
 
@@ -261,14 +278,35 @@ void indexTest(){
 int main()
 {
   	// run the SQL engine taking user commands from standard input (console).
-  	//SqlEngine::run(stdin);
+  	SqlEngine::run(stdin);
 
  	
  	//leafTest();
 	//nonTest();
 	//indexTest();
-	indexTest2();
-
-
+	//indexTest2();
+        /*BTreeIndex idx;
+        idx.open("large", 'r');
+        
+        char buffer[PageFile::PAGE_SIZE];
+        BTNonLeafNode *nonleaf;
+        BTLeafNode *leaf;
+        RC rc = 0;
+        idx.read(0,(void *)buffer);
+	printf("rootPageHeader: root PageId: %d, tree height: %d\n\n",*((int*)buffer),*(((int*)buffer)+1));
+	for (int i=1; rc == 0; i++) {
+          printf("Printing node: %d\n", i);
+          rc = idx.read(i,(void*)buffer);
+          if (i == 3 || i == 74 || i == 75) {
+            nonleaf = reinterpret_cast<BTNonLeafNode*>(buffer);
+            nonleaf->printNode();
+	  } else {
+            leaf = reinterpret_cast<BTLeafNode*>(buffer);
+            leaf->printNode();
+            printf("leaf on page %d -> leaf on page %d\n",i,leaf->getNextPage());
+          }
+          printf("\n");
+        }
+        idx.close();*/
   	return 0;
 }
