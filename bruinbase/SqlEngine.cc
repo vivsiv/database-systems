@@ -57,15 +57,9 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
   bool isIndex = false;
   BTreeIndex idx;
   const string idxname = table + ".idx";
-  //fprintf(stdout, "Opening index %s\n", idxname.c_str());
   index = idx.open(table, 'r');
-  if (index != 0) {
-    fprintf(stdout, "There is no index %s\n", idxname.c_str());
-  }
-  else {
+  if (index == 0) {
     isIndex = true;
-    //fprintf(stdout, "Index %s found!\n", idxname.c_str());
-    //return 0;
   }
   
   // filter value key conditions and value conditions into separate vectors
@@ -107,13 +101,11 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
   }
   
   // use the index to answer the query
-  if (keyConds.size() >= 1 && isIndex) {
+  if ((keyConds.size() >= 1 || (attr == 1 || attr == 4)) && isIndex) {
     // check if query is invalid and if so return reasonable error code
     // assumes any query with more than one value condition is false
     // also assumes negative keys are invalid
     if (upper < lower || upper == lower || (upper < equal && eq) || (lower > equal && eq) || equal_count > 1 || valConds.size() > 1) {
-      printf("upper = %d, lower = %d\n", upper, lower);
-      fprintf(stderr, "Invalid query!\n");
       return 0;
     }
       // iterate through keys
@@ -127,9 +119,9 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
       } else key = lower;
       
       rc = idx.locate(key, cursor);
-      if (rc != 0 && rc != RC_NO_SUCH_RECORD) { fprintf(stderr, "rc=%d, count=%d\n", rc, count); return rc; }
+      if (rc != 0 && rc != RC_NO_SUCH_RECORD) return rc;
       rc = idx.readForward(cursor, key, rid);
-      if (rc != 0) { fprintf(stderr, "rc=%d, count=%d\n", rc, count); return rc; }
+      if (rc != 0) return rc;
 
       while (key <= upper) {
           switch(attr) {
@@ -184,18 +176,13 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
               break;
           }
         rc = idx.readForward(cursor, key, rid);
-        if (rc == RC_END_OF_TREE) { 
-          break;
-        }
+        if (rc == RC_END_OF_TREE) break;
         ++count;
       }
       if (attr == 4) fprintf(stdout, "%d\n", matches);
-      //fprintf(stdout, "count=%d\n", count);
-      //fprintf(stdout, "matches=%d\n", matches);
       rf.close();
       idx.close();
       return 0;
-    //}
   }
 
   // scan the table file from the beginning
