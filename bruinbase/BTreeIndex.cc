@@ -253,7 +253,7 @@ void BTreeIndex::propagateLeaf(int key, PageId parentPage, BTLeafNode& node, BTL
 			parentSibling.read(pf.endPid(), pf);
 			int parentMidKey;
 
-			printf("Non Leaf Split Happens\n");
+			//printf("Non Leaf Split Happens\n");
 			parent.insertAndSplit(key, sibling.getPageId(), parentSibling, parentMidKey);
 
 			parent.write(parent.getPageId(), pf);
@@ -264,7 +264,7 @@ void BTreeIndex::propagateLeaf(int key, PageId parentPage, BTLeafNode& node, BTL
 			//sibling.write(sibling.getPageId(), pf);
 			//set last parent pointers
 
-			printf("Leaf parents were split\n");
+			//printf("Leaf parents were split\n");
 			// printf("Parent on page:%d...", parent.getPageId());
 			// parent.printNode();
 			// printf("\n");
@@ -276,7 +276,7 @@ void BTreeIndex::propagateLeaf(int key, PageId parentPage, BTLeafNode& node, BTL
 			//printf("\n");
 			//printf("Child2 on page:%d...", sibling.getPageId());
 			//sibling.printNode();
-			printf("\n");
+			//printf("\n");
 			return propagateNonLeaf(parentMidKey, parent.getParent(), parent, parentSibling, currHeight - 1);
 		}
 		else {
@@ -334,7 +334,7 @@ void BTreeIndex::propagateNonLeaf(int key, PageId parentPage, BTNonLeafNode& nod
 			parentSibling.read(pf.endPid(), pf);
 			int parentMidKey;
 
-			printf("Non Leaf Split Happens\n");
+			//printf("Non Leaf Split Happens\n");
 			parent.insertAndSplit(key, sibling.getPageId(), parentSibling, parentMidKey);
 			parent.write(parent.getPageId(), pf);
 			parentSibling.write(parentSibling.getPageId(), pf);
