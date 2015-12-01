@@ -273,7 +273,7 @@ class BTNonLeafNode {
 
     void initialize(int numKeys, PageId parentPage, const char* cpyStart);
 
-    static const int NO_KEY = -1;
+    static const int NO_KEY = RC_INVALID_ATTRIBUTE;
 }; 
 
 #endif /* BTREENODE_H */
