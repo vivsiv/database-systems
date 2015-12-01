@@ -12,6 +12,9 @@
 
 #include "RecordFile.h"
 #include "PageFile.h"
+#include <cstdio>
+#include <cstring>
+#include <climits>
 
 /**
  * BTLeafNode: The class representing a B+tree leaf node.
