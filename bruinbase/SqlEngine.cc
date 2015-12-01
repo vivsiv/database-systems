@@ -101,11 +101,11 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
   }
   
   // use the index to answer the query
-  if ((keyConds.size() >= 1 || (attr == 1 || attr == 4)) && isIndex && valConds.size() < 1) {
+  if ((keyConds.size() >= 1 || (attr == 1 || attr == 4)) && isIndex && valConds.size() <= 1) {
     // check if query is invalid and if so return reasonable error code
     // assumes any query with more than one value condition is false
     // also assumes negative keys are invalid
-    if (upper < lower || upper == lower || (upper < equal && eq) || (lower > equal && eq) || equal_count > 1) {
+    if (upper < lower || (upper < equal && eq) || (lower > equal && eq) || equal_count > 1) {
       return 0;
     }
       // iterate through keys
